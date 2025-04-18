@@ -1,0 +1,29 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# IntelliJ specific
+/.idea/                      # Setări de proiect IntelliJ (nu sunt utile altora)
+/*.iml                       # Fişierul cu configuraţia IntelliJ pentru modul
+
+# Compiled Java class files
+/target/                     # Folderul cu fişierele compilate de Maven
+
+# Logs
+*.log                        # Fișiere de log generate la rulare
+
+# System
+.DS_Store                    # Fișier macOS ascuns (nu trebuie în repo)
+
+/shelf/                      # Funcționalitate IntelliJ pentru "shelf changes"
+/workspace.xml              # Config personal de fereastră și layout
+
+/httpRequests/              # Cereri HTTP salvate din IntelliJ
+
+/dataSources/               # Setări locale pentru surse de date
+/dataSources.local.xml      # Config local pentru surse de date
