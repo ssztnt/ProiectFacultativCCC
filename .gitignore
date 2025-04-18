@@ -1,0 +1,21 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# IntelliJ config files
+.idea/
+*.iml
+
+# Maven build folder
+/backend/target/
+
+# Logs
+*.log
+
+# OS-generated files
+.DS_Store
