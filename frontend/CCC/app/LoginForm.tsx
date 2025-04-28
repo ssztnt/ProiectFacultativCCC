@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { IPaddress } from '../constants/NetworkConfig';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+
+
     const handleLogin = async () => {
         try {
             console.log('Starting login request...');
 
-            const response = await fetch('http://192.168.101.112:7777/api/login', {
+            const response = await fetch(`${IPaddress}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
