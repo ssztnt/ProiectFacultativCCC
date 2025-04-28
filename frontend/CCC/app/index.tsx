@@ -1,6 +1,5 @@
-import { Redirect } from 'expo-router';
+import AuthScreen from './AuthScreen';
 
 export default function Index() {
-    // @ts-ignore
-    return <Redirect href="/login" />;
+    return <AuthScreen />;
 }
