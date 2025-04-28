@@ -44,10 +44,12 @@ public class AuthController {
         }
         User newUser = new User(
                 user.getUsername(),
-                encoder.encode(user.getPassword())
+                user.getFirstname(),
+                user.getLastname(),
+                encoder.encode(user.getPassword()),
+                user.getEmail()
         );
         userRepository.save(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
-
 }
