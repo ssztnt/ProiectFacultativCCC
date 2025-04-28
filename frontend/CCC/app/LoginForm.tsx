@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { IPaddress } from '../constants/NetworkConfig';
+import { useRouter} from 'expo-router';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
+    const router = useRouter()
 
 
 
@@ -30,6 +33,7 @@ export default function LoginForm() {
                 const token = await response.text();  // <<<<< notice: .text(), not .json()
                 console.log('Login success! Token:', token);
                 alert('Login Successful!');
+                router.replace('/MainMenu');
             } else {
                 console.log('Login failed. Status:', response.status);
                 alert('Login Failed! Check your username and password.');
