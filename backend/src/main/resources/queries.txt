@@ -1,0 +1,10 @@
+CREATE TABLE users (
+                       id SERIAL PRIMARY KEY,
+                       username VARCHAR(255) NOT NULL UNIQUE,
+                       password VARCHAR(255) NOT NULL
+);
+
+ALTER TABLE users
+ADD COLUMN email VARCHAR(255) NOT NULL UNIQUE,
+ADD COLUMN firstname VARCHAR(255) NOT NULL,
+ADD COLUMN lastname VARCHAR(255) NOT NULL;
