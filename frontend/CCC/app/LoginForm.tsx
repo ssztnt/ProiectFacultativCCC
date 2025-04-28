@@ -12,6 +12,7 @@ export default function LoginForm() {
             const response = await fetch('http://192.168.101.112:7777/api/login', {
                 method: 'POST',
                 headers: {
+                    responseType: 'text',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
