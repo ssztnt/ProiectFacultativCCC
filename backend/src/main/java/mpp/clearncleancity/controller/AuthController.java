@@ -1,5 +1,6 @@
 package mpp.clearncleancity.controller;
 
+import jakarta.validation.Valid;
 import mpp.clearncleancity.model.User;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.security.JwtUtil;
@@ -11,6 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.io.File;
+import java.io.PrintStream;
 
 @RestController
 @RequestMapping("/api/auth")
