@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import {router} from "expo-router";
 
 export default function MainMenuScreen() {
     const [username, setUsername] = useState('User'); // You can pass real username later
@@ -34,7 +35,7 @@ export default function MainMenuScreen() {
                 <Text style={styles.menuButtonText}>Environmental News</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/AuthScreen')}>
                 <Ionicons name="log-out-outline" size={20} color="#237F52" />
                 <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>

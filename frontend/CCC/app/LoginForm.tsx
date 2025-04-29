@@ -33,7 +33,10 @@ export default function LoginForm() {
                 const token = await response.text();  // <<<<< notice: .text(), not .json()
                 console.log('Login success! Token:', token);
                 alert('Login Successful!');
-                router.replace('/MainMenu');
+                router.replace({
+                    pathname: '/MainMenu',
+                    params: { username },
+                });
             } else {
                 console.log('Login failed. Status:', response.status);
                 alert('Login Failed! Check your username and password.');

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView,} from 'react-native';
 import LoginForm from './LoginForm';
 import SignupForm from './SignUpForm';
 
@@ -8,7 +9,10 @@ export default function AuthScreen() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {/* Logo / Title */}
+            <Image
+                source={require('../assets/images/cleannclearcity_logo_3.png')}
+                style={{ width: 100, height: 100, resizeMode: 'contain' }}
+            />
             <Text style={styles.logo}>🌿 CleanNClearCity</Text>
 
             <Text style={styles.title}>Get Started now</Text>
