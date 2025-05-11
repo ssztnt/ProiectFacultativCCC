@@ -75,6 +75,7 @@ public class AuthController {
                 user.getEmail()
         );
         userRepository.save(newUser);
+        log.info("User registered with id: {} and username: {}", user.getId(), user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 }
