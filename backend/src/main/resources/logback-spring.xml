@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS" value="./logs" />
+
+    <!-- File appender with timestamp for new file on each application start -->
+    <appender name="ApplicationLogFile" class="ch.qos.logback.core.FileAppender">
+        <file>${LOGS}/log-${byTime}.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</Pattern>
+        </encoder>
+        <append>true</append>
+        <prudent>true</prudent>
+    </appender>
+
+    <timestamp key="byTime" datePattern="MM-dd-HH-mm-ss"/>
+
+    <!-- Rolling file appender to limit to 50 files -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/latest.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/log-%d{MM-dd-HH-mm-ss}.log</fileNamePattern>
+            <maxHistory>50</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Turn off Spring's default logging -->
+    <logger name="org.springframework" level="WARN" additivity="false">
+    </logger>
+
+    <logger name="mpp.clearncleancity" level="INFO" additivity="false">
+        <appender-ref ref="ApplicationLogFile" />
+    </logger>
+    <root name="mpp.clearncleancity" level="ERROR">
+        <appender-ref ref="ApplicationLogFile" />
+    </root>
+</configuration>
