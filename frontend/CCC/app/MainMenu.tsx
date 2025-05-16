@@ -35,7 +35,7 @@ export default function MainMenuScreen() {
                 <Text style={styles.menuButtonText}>Environmental News</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/AuthScreen')}>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/LoginScreen')}>
                 <Ionicons name="log-out-outline" size={20} color="#237F52" />
                 <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>
