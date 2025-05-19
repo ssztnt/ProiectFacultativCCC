@@ -30,7 +30,7 @@ public class IssueController {
         return issueRepository.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createIssue(@RequestBody Issue issue, Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
