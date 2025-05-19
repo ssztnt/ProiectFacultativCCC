@@ -8,3 +8,20 @@ ALTER TABLE users
 ADD COLUMN email VARCHAR(255) NOT NULL UNIQUE,
 ADD COLUMN firstname VARCHAR(255) NOT NULL,
 ADD COLUMN lastname VARCHAR(255) NOT NULL;
+
+
+// TABEL issue
+CREATE TABLE issue (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(100),
+    location VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+ALTER TABLE issue
+ALTER COLUMN id TYPE BIGINT;
