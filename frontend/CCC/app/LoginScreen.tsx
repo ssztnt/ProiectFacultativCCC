@@ -38,8 +38,11 @@ export default function LoginForm() {
 
             if (response.ok) {
                 const token = await response.text();
-                alert('Login Successful!');
-                router.replace({ pathname: '/MainMenu', params: { username } });
+
+                router.replace({
+                    pathname: '/WelcomeScreen',
+                    params: { username },
+                });
             } else {
                 alert('Login Failed! Check your username and password.');
             }
