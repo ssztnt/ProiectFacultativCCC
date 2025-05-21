@@ -1,2 +1,8 @@
 va rog sa faceti validari pentru entitati care vor mai fi aici , cum e facut la laburi si sa le aplicam dupa
 :)
+
+
+1) OBSERVER PENTRU 2 CLINETI
+2 ) loggers pentru tot
+3 ) entitati noi idei : vote ( like/dislike ) , comment , notification
+4 ) logare : ENUM - USER , ADMIN , POLITIE , SALUBRIZARE, PRIMARIE , POMPIERI
