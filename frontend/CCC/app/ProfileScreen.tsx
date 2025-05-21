@@ -1,37 +1,51 @@
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AppColor from '../constants/AppColor';
-import {router} from "expo-router";
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        const loadUser = async () => {
+            const stored = await AsyncStorage.getItem('userData');
+            if (stored) {
+                setUser(JSON.parse(stored));
+            }
+        };
+        loadUser();
+    }, []);
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color="#237F52" />
+            </TouchableOpacity>
+
             {/* User Info */}
             <View style={styles.userCard}>
                 <Ionicons name="person-circle-outline" size={64} color={AppColor.primary} />
-                <Text style={styles.userName}>Rares Plaiu</Text>
-                <Text style={styles.userTag}>@raresplaiu</Text>
+                <Text style={styles.userName}>
+                    {user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}
+                </Text>
+                <Text style={styles.userTag}>
+                    {user ? `@${user.username}` : '@username'}
+                </Text>
             </View>
 
             {/* General Settings */}
             <Text style={styles.sectionTitle}>⚙️ General</Text>
             <View style={styles.settingRow}>
                 <Text style={styles.settingText}>Notificări Push</Text>
-                <Switch
-                    value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
-                />
+                <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
             </View>
             <View style={styles.settingRow}>
                 <Text style={styles.settingText}>Mod încerat (Dark Mode)</Text>
-                <Switch
-                    value={darkModeEnabled}
-                    onValueChange={setDarkModeEnabled}
-                />
+                <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
             </View>
 
             {/* Securitate */}
@@ -43,9 +57,6 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.optionRow}>
                 <Text style={styles.optionText}>Schimbă emailul</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#237F52" />
             </TouchableOpacity>
 
             {/* Legal */}
@@ -70,9 +81,10 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: AppColor.background,
         padding: 20,
+        justifyContent: 'center',
     },
     userCard: {
         alignItems: 'center',
@@ -136,7 +148,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 50,           // ajustează în funcție de status bar
+        top: 50,
         left: 20,
         padding: 10,
         zIndex: 10,

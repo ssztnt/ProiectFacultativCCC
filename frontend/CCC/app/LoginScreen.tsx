@@ -32,25 +32,30 @@ export default function LoginForm() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    responseType: 'text',
                 },
                 body: JSON.stringify({ username, password }),
             });
 
             if (response.ok) {
-                const token = await response.text();
-                await AsyncStorage.setItem('token', token); // salvează token-ul
-                console.log('Saved token:', token);
-                router.replace({ pathname: '/MainMenuScreen', params: { username } });
+                const data = await response.json();
+                const token = data.token;
+                const user = data.user;
+
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem('userData', JSON.stringify(user));
+
+                console.log('Token & user saved');
 
                 router.replace({
                     pathname: '/WelcomeScreen',
-                    params: { username },
+                    params: { username: user.username },
                 });
             } else {
-                alert('Login Failed! Check your username and password.');
+                const err = await response.text();
+                alert(`Login Failed! ${err}`);
             }
         } catch (error) {
+            console.error(error);
             alert('Error connecting to backend.');
         }
     };
