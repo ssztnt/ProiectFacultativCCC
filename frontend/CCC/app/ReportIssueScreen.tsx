@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import AppColor from '../constants/AppColor';
 import { IPaddress } from '@/constants/NetworkConfig';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReportIssueScreen() {
     const [title, setTitle] = useState('');
@@ -35,12 +36,7 @@ export default function ReportIssueScreen() {
             return;
         }
 
-        const issuePayload = {
-            title,
-            description,
-            category,
-            location
-        };
+        const issuePayload = { title, description, category, location };
 
         try {
             const response = await fetch(`${IPaddress}/api/issues/create`, {
@@ -70,59 +66,73 @@ export default function ReportIssueScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-            <ScrollView contentContainerStyle={styles.container}>
-                <TouchableOpacity onPress={() => router.replace('/MainMenuScreen')} style={styles.backButton}>
-                    <Text style={styles.backButtonText}>← Back</Text>
-                </TouchableOpacity>
-
-                <View style={styles.card}>
-                    <Text style={styles.header}>Report a Problem</Text>
-
-                    <Text style={styles.label}>Title *</Text>
-                    <TextInput style={styles.input} value={title} onChangeText={setTitle} />
-
-                    <Text style={styles.label}>Description *</Text>
-                    <TextInput
-                        style={[styles.input, { height: 80 }]}
-                        value={description}
-                        onChangeText={setDescription}
-                        multiline
-                    />
-
-                    <Text style={styles.label}>Category *</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={category}
-                        onChangeText={setCategory}
-                        placeholder="Ex: Gunoi, Poluare"
-                    />
-
-                    <Text style={styles.label}>Location *</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={location}
-                        onChangeText={setLocation}
-                        placeholder="Strada, cartier..."
-                    />
-
-                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                        <Text style={styles.submitButtonText}>Submit Report</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            >
+                <ScrollView contentContainerStyle={styles.container}>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                        <Text style={styles.backButtonText}>← Back</Text>
                     </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+
+                    <View style={styles.card}>
+                        <Text style={styles.header}>Report a Problem</Text>
+
+                        <Text style={styles.label}>Title *</Text>
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+
+                        <Text style={styles.label}>Description *</Text>
+                        <TextInput
+                            style={[styles.input, { height: 80 }]}
+                            value={description}
+                            onChangeText={setDescription}
+                            multiline
+                        />
+
+                        <Text style={styles.label}>Category *</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={category}
+                            onChangeText={setCategory}
+                            placeholder="Ex: Gunoi, Poluare"
+                        />
+
+                        <Text style={styles.label}>Location *</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={location}
+                            onChangeText={setLocation}
+                            placeholder="Strada, cartier..."
+                        />
+
+                        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                            <Text style={styles.submitButtonText}>Submit Report</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         padding: 24,
-        backgroundColor: AppColor.background,
         flexGrow: 1,
+        justifyContent: 'center',
+        backgroundColor: AppColor.background,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 12,
+        left: 20,
+        zIndex: 10,
+    },
+    backButtonText: {
+        color: AppColor.primary,
+        fontSize: 16,
+        fontWeight: '600',
     },
     card: {
         backgroundColor: '#fff',
@@ -133,14 +143,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowRadius: 8,
         elevation: 5,
-    },
-    backButton: {
-        marginBottom: 12,
-    },
-    backButtonText: {
-        color: AppColor.primary,
-        fontSize: 16,
-        fontWeight: '600',
     },
     header: {
         fontSize: 22,
