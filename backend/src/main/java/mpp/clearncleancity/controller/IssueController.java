@@ -1,7 +1,6 @@
 package mpp.clearncleancity.controller;
 
 import mpp.clearncleancity.model.User;
-import mpp.clearncleancity.model.dto.IssueRequestDTO;
 import mpp.clearncleancity.model.issue.Issue;
 import mpp.clearncleancity.model.issue.IssueCategory;
 import mpp.clearncleancity.repository.IssueRepository;

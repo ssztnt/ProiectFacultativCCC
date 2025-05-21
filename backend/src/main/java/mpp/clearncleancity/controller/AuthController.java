@@ -20,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,7 +52,19 @@ public class AuthController {
             log.info("Authentication successful for user: {}", user.getUsername());
 
             String token = jwtUtils.generateToken(userDetails.getUsername());
-            return ResponseEntity.ok(token);
+            User fullUser = userRepository.findByUsername(user.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Ascunde parola în răspuns
+            fullUser.setPassword(null);
+
+            // Creează structura de răspuns
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", fullUser);
+
+            return ResponseEntity.ok(response);
+
         } catch (BadCredentialsException e) {
             log.warn("Authentication failed for username: {} - Bad credentials", user.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
