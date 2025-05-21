@@ -1,7 +1,9 @@
 package mpp.clearncleancity.controller;
 
 import mpp.clearncleancity.model.User;
+import mpp.clearncleancity.model.dto.IssueRequestDTO;
 import mpp.clearncleancity.model.issue.Issue;
+import mpp.clearncleancity.model.issue.IssueCategory;
 import mpp.clearncleancity.repository.IssueRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.service.IssueService;
@@ -10,8 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -39,7 +47,6 @@ public class IssueController {
         issue.setUser(user);
         return ResponseEntity.ok(issueRepository.save(issue));
     }
-
 
     // GET issue by ID
     @GetMapping("/{id}")

@@ -22,6 +22,10 @@ public class Issue {
     @Column
     private String location;
 
+
+    @Column(name = "image_url", nullable = true)
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueCategory category;
@@ -113,5 +117,13 @@ public class Issue {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

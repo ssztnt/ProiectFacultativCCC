@@ -22,7 +22,7 @@ export default function MainMenuScreen() {
                     <Text style={styles.tabLabel}>Explore</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {}} style={styles.reportButton}>
+                <TouchableOpacity onPress={() => router.push('/ReportIssueScreen')} style={styles.reportButton}>
                     <Ionicons name="add-circle" size={60} color={AppColor.primary} />
                 </TouchableOpacity>
 

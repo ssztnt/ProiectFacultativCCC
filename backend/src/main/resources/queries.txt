@@ -24,4 +24,18 @@ CREATE TABLE issue (
 );
 
 ALTER TABLE issue
+ADD COLUMN image_url TEXT;
+
+ALTER TABLE issue
 ALTER COLUMN id TYPE BIGINT;
+
+
+// password reset token
+
+CREATE TABLE password_reset_tokens (
+                                       id SERIAL PRIMARY KEY,
+                                       token VARCHAR(255) NOT NULL UNIQUE,
+                                       user_id BIGINT NOT NULL,
+                                       expiration TIMESTAMP NOT NULL,
+                                       CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

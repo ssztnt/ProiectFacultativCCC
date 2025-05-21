@@ -51,7 +51,13 @@ public class WebSecurityConfig {
                 )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/auth/**" , "/api/issues/**").permitAll()
+                                .requestMatchers(
+                                        "/api/auth/**",
+                                        "/api/password-reset/**",
+                                        "/api/issues", // doar GET pe toate
+                                        "/api/issues/{id}" // doar GET pe un issue
+                                ).permitAll()
+                                .requestMatchers("/api/issues/create-with-image", "/api/issues/create").authenticated()
                                 .anyRequest().authenticated()
                 );
         // Add the JWT Token filter before the UsernamePasswordAuthenticationFilter

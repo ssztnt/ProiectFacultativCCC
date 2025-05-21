@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 're
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AppColor from '../constants/AppColor';
+import {router} from "expo-router";
 
 export default function ProfileScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -42,6 +43,9 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.optionRow}>
                 <Text style={styles.optionText}>Schimbă emailul</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color="#237F52" />
             </TouchableOpacity>
 
             {/* Legal */}
@@ -129,5 +133,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#fff',
         fontWeight: '600',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 50,           // ajustează în funcție de status bar
+        left: 20,
+        padding: 10,
+        zIndex: 10,
     },
 });

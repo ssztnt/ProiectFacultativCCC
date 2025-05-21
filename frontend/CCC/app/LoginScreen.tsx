@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { IPaddress } from '../constants/NetworkConfig';
 import AppColor from '../constants/AppColor';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
@@ -38,6 +39,9 @@ export default function LoginForm() {
 
             if (response.ok) {
                 const token = await response.text();
+                await AsyncStorage.setItem('token', token); // salvează token-ul
+                console.log('Saved token:', token);
+                router.replace({ pathname: '/MainMenuScreen', params: { username } });
 
                 router.replace({
                     pathname: '/WelcomeScreen',
@@ -75,7 +79,7 @@ export default function LoginForm() {
                     placeholderTextColor="#999"
                 />
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/ResetRequestScreen')}>
                     <Text style={styles.forgotPassword}>Forgot password?</Text>
                 </TouchableOpacity>
 
