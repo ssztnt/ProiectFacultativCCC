@@ -1,14 +1,14 @@
-package mpp.clearncleancity.model.issue;
+package mpp.clearncleancity.model.entitites;
 
 import jakarta.persistence.*;
-import mpp.clearncleancity.model.User;
+import mpp.clearncleancity.model.enums.IssueCategory;
+import mpp.clearncleancity.model.enums.IssueStatus;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "issue")
 public class Issue {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +21,6 @@ public class Issue {
 
     @Column
     private String location;
-
 
     @Column(name = "image_url", nullable = true)
     private String imageUrl;

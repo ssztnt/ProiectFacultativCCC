@@ -1,4 +1,4 @@
-package mpp.clearncleancity.model.issue;
+package mpp.clearncleancity.model.enums;
 
 public enum IssueCategory {
     GARBAGE,

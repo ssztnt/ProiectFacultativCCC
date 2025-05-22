@@ -1,7 +1,7 @@
 package mpp.clearncleancity.service;
 
 import mpp.clearncleancity.repository.UserRepository;
-import mpp.clearncleancity.model.User;
+import mpp.clearncleancity.model.entitites.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

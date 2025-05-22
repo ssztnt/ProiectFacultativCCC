@@ -1,8 +1,8 @@
 package mpp.clearncleancity.service;
 
 import jakarta.transaction.Transactional;
-import mpp.clearncleancity.model.PasswordResetToken;
-import mpp.clearncleancity.model.User;
+import mpp.clearncleancity.model.entitites.PasswordResetToken;
+import mpp.clearncleancity.model.entitites.User;
 import mpp.clearncleancity.repository.PasswordResetTokenRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

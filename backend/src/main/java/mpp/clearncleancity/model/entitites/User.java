@@ -1,4 +1,4 @@
-package mpp.clearncleancity.model;
+package mpp.clearncleancity.model.entitites;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

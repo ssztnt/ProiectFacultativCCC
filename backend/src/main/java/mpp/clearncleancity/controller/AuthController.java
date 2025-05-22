@@ -1,10 +1,9 @@
 package mpp.clearncleancity.controller;
 
-import jakarta.validation.Valid;
-import mpp.clearncleancity.model.User;
+import mpp.clearncleancity.model.entitites.User;
+import mpp.clearncleancity.model.validators.UserValidator;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.security.JwtUtil;
-import mpp.clearncleancity.service.CustomUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,8 +74,21 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         log.info("Trying to sign up user with username: {}", user.getUsername());
+
+        // Validate the user
+        UserValidator userValidator = new UserValidator();
+        try {
+            userValidator.validate(user);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation error: " + e.getMessage());
+        }
+
         if (userRepository.existsByUsername(user.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken!");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is already in use!");
         }
         User newUser = new User(
                 user.getUsername(),
