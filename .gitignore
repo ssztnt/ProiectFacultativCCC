@@ -21,3 +21,6 @@
 .DS_Store
 
 /backend/src/main/resources/application.properties
+
+# Ignoră modulele npm
+node_modules/

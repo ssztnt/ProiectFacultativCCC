@@ -8,8 +8,9 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
-    ScrollView
+    FlatList
 } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import AppColor from '../constants/AppColor';
@@ -19,8 +20,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ReportIssueScreen() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState(null);
     const [location, setLocation] = useState('');
+    const [open, setOpen] = useState(false);
+    const [items, setItems] = useState([
+        { label: 'Garbage', value: 'GARBAGE' },
+        { label: 'Broken Road', value: 'BROKEN_ROAD' },
+        { label: 'Air Pollution', value: 'AIR_POLLUTION' },
+        { label: 'Water Leak', value: 'WATER_LEAK' },
+        { label: 'Noise', value: 'NOISE' },
+        { label: 'Other', value: 'OTHER' },
+    ]);
 
     const router = useRouter();
 
@@ -52,7 +62,7 @@ export default function ReportIssueScreen() {
                 Alert.alert('Success', 'Issue submitted successfully!');
                 setTitle('');
                 setDescription('');
-                setCategory('');
+                setCategory(null);
                 setLocation('');
                 router.replace('/MainMenuScreen');
             } else {
@@ -65,52 +75,66 @@ export default function ReportIssueScreen() {
         }
     };
 
+    const renderForm = () => (
+        <View style={styles.card}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.header}>Report a Problem</Text>
+
+            <Text style={styles.label}>Title *</Text>
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+
+            <Text style={styles.label}>Description *</Text>
+            <TextInput
+                style={[styles.input, { height: 80 }]}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+            />
+
+            <Text style={styles.label}>Category *</Text>
+            <DropDownPicker
+                open={open}
+                value={category}
+                items={items}
+                setOpen={setOpen}
+                setValue={setCategory}
+                setItems={setItems}
+                placeholder="Select a category"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                maxHeight={300}
+            />
+
+            <Text style={styles.label}>Location *</Text>
+            <TextInput
+                style={styles.input}
+                value={location}
+                onChangeText={setLocation}
+                placeholder="Strada, cartier..."
+            />
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>Submit Report</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <ScrollView contentContainerStyle={styles.container}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <Text style={styles.backButtonText}>← Back</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.card}>
-                        <Text style={styles.header}>Report a Problem</Text>
-
-                        <Text style={styles.label}>Title *</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
-
-                        <Text style={styles.label}>Description *</Text>
-                        <TextInput
-                            style={[styles.input, { height: 80 }]}
-                            value={description}
-                            onChangeText={setDescription}
-                            multiline
-                        />
-
-                        <Text style={styles.label}>Category *</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={category}
-                            onChangeText={setCategory}
-                            placeholder="Ex: Gunoi, Poluare"
-                        />
-
-                        <Text style={styles.label}>Location *</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={location}
-                            onChangeText={setLocation}
-                            placeholder="Strada, cartier..."
-                        />
-
-                        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                            <Text style={styles.submitButtonText}>Submit Report</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
+                <FlatList
+                    data={[{ key: 'form' }]} // Single item to render the form
+                    renderItem={renderForm}
+                    keyExtractor={(item) => item.key}
+                    contentContainerStyle={styles.container}
+                    keyboardShouldPersistTaps="handled"
+                />
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -162,6 +186,15 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 12,
         marginTop: 6,
+    },
+    dropdown: {
+        backgroundColor: '#F2F2F2',
+        borderRadius: 10,
+        marginTop: 6,
+    },
+    dropdownContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
     },
     submitButton: {
         backgroundColor: AppColor.primary,

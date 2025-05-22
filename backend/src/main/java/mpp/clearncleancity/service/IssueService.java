@@ -1,8 +1,8 @@
 package mpp.clearncleancity.service;
 
 
-import mpp.clearncleancity.model.User;
-import mpp.clearncleancity.model.issue.Issue;
+import mpp.clearncleancity.model.entitites.User;
+import mpp.clearncleancity.model.entitites.Issue;
 import mpp.clearncleancity.repository.IssueRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
