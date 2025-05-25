@@ -1,14 +1,27 @@
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Switch,
+    TouchableOpacity,
+    ScrollView,
+    Image,
+    Alert,
+    Modal
+} from 'react-native';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AppColor from '../constants/AppColor';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { IPaddress } from '../constants/NetworkConfig';
 
 export default function ProfileScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [isModalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -20,35 +33,85 @@ export default function ProfileScreen() {
         loadUser();
     }, []);
 
+    const handleImagePick = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.7,
+        });
+
+        if (!result.canceled) {
+            const token = await AsyncStorage.getItem('token');
+            const localUri = result.assets[0].uri;
+            const filename = localUri.split('/').pop() || 'image.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image`;
+
+            const formData = new FormData();
+            formData.append('image', {
+                uri: localUri,
+                name: filename,
+                type,
+            } as any);
+
+            try {
+                const response = await fetch(`${IPaddress}/api/users/profile-picture`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const newImageUrl = await response.text();
+                    const updatedUser = { ...user, profilePictureUrl: newImageUrl };
+                    setUser(updatedUser);
+                    await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+                    Alert.alert('Succes', 'Poza de profil a fost actualizată!');
+                    setModalVisible(false);
+                } else {
+                    Alert.alert('Eroare', 'Nu s-a putut actualiza poza.');
+                }
+            } catch (err) {
+                Alert.alert('Eroare', 'Upload eșuat.');
+            }
+        }
+    };
+
+    const handleLogout = async () => {
+        await AsyncStorage.clear();
+        router.replace('/LoginScreen');
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color="#237F52" />
             </TouchableOpacity>
 
-            {/* User Info */}
             <View style={styles.userCard}>
-                <Ionicons name="person-circle-outline" size={64} color={AppColor.primary} />
-                <Text style={styles.userName}>
-                    {user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}
-                </Text>
-                <Text style={styles.userTag}>
-                    {user ? `@${user.username}` : '@username'}
-                </Text>
+                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    {user?.profilePictureUrl ? (
+                        <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
+                    ) : (
+                        <Ionicons name="person-circle-outline" size={80} color={AppColor.primary} />
+                    )}
+                </TouchableOpacity>
+                <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}</Text>
+                <Text style={styles.userTag}>{user ? `@${user.username}` : '@username'}</Text>
             </View>
 
-            {/* General Settings */}
             <Text style={styles.sectionTitle}>⚙️ General</Text>
             <View style={styles.settingRow}>
                 <Text style={styles.settingText}>Notificări Push</Text>
                 <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
             </View>
             <View style={styles.settingRow}>
-                <Text style={styles.settingText}>Mod încerat (Dark Mode)</Text>
+                <Text style={styles.settingText}>Mod întunecat (Dark Mode)</Text>
                 <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
             </View>
 
-            {/* Securitate */}
             <Text style={styles.sectionTitle}>🔐 Securitate</Text>
             <TouchableOpacity style={styles.optionRow}>
                 <Text style={styles.optionText}>Schimbă parola</Text>
@@ -59,7 +122,6 @@ export default function ProfileScreen() {
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
-            {/* Legal */}
             <Text style={styles.sectionTitle}>📄 Legal</Text>
             <TouchableOpacity style={styles.optionRow}>
                 <Text style={styles.optionText}>Termeni și condiții</Text>
@@ -70,11 +132,26 @@ export default function ProfileScreen() {
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
-            {/* Logout */}
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Ionicons name="log-out-outline" size={20} color="#fff" />
                 <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
+
+            <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        {user?.profilePictureUrl && (
+                            <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="contain" />
+                        )}
+                        <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
+                            <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <Text style={{ marginTop: 10, color: '#888' }}>Închide</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </ScrollView>
     );
 }
@@ -89,6 +166,12 @@ const styles = StyleSheet.create({
     userCard: {
         alignItems: 'center',
         marginBottom: 30,
+    },
+    avatar: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+        marginBottom: 8,
     },
     userName: {
         fontSize: 22,
@@ -152,5 +235,33 @@ const styles = StyleSheet.create({
         left: 20,
         padding: 10,
         zIndex: 10,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 20,
+        alignItems: 'center',
+    },
+    fullImage: {
+        width: 250,
+        height: 250,
+        borderRadius: 12,
+    },
+    changeBtn: {
+        marginTop: 15,
+        backgroundColor: AppColor.primary,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    changeBtnText: {
+        color: 'white',
+        fontWeight: '600',
     },
 });

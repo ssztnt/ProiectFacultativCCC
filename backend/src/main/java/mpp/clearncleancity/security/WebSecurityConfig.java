@@ -15,8 +15,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class WebSecurityConfig {
+
     @Autowired
     CustomUserDetailsService userDetailsService;
+
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
@@ -39,10 +41,9 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Updated configuration for Spring Security 6.x
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF
-                .cors(cors -> cors.disable()) // Disable CORS (or configure if needed)
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling.authenticationEntryPoint(unauthorizedHandler)
                 )
@@ -54,14 +55,20 @@ public class WebSecurityConfig {
                                 .requestMatchers(
                                         "/api/auth/**",
                                         "/api/password-reset/**",
-                                        "/api/issues", // doar GET pe toate
-                                        "/api/issues/{id}" // doar GET pe un issue
+                                        "/api/issues",
+                                        "/api/issues/{id}",
+                                        "/uploads/**"
                                 ).permitAll()
-                                .requestMatchers("/api/issues/create-with-image", "/api/issues/create").authenticated()
+                                .requestMatchers(
+                                        "/api/issues/create-with-image",
+                                        "/api/issues/create",
+                                        "/api/users/profile-picture"
+                                ).authenticated()
                                 .anyRequest().authenticated()
                 );
-        // Add the JWT Token filter before the UsernamePasswordAuthenticationFilter
+
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

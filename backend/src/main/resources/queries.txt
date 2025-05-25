@@ -39,3 +39,5 @@ CREATE TABLE password_reset_tokens (
                                        expiration TIMESTAMP NOT NULL,
                                        CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+ALTER TABLE users ADD COLUMN profile_picture_url TEXT;
