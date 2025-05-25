@@ -83,7 +83,7 @@ export default function SignUpScreen() {
                         style={styles.logo}
                     />
 
-                    <Text style={styles.title}>Create Account</Text>
+                    <Text style={styles.welcome}>Create Account</Text>
 
                     <Animatable.View ref={shakeRef} style={{ width: '100%' }}>
                         <TextInput
@@ -248,5 +248,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 30,
         marginTop: 10,
+    },
+    welcome: {
+        fontSize: 22,
+        fontWeight: 'bold',       // schimbă stilul
+        fontStyle: 'italic',      // opțional: adaugă italic
+        color: '#111',
+        marginBottom: 30,
+        textAlign: 'center',
     },
 });

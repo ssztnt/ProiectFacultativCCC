@@ -9,7 +9,7 @@ import {
     Platform,
     TouchableWithoutFeedback,
     Keyboard,
-    Linking,
+    Linking, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IPaddress } from '../constants/NetworkConfig';
@@ -81,6 +81,7 @@ export default function LoginForm() {
             >
                 <Animatable.View ref={shakeRef} style={{ width: '100%' }}>
                     <Text style={styles.welcome}>Welcome back, eco-hero! 🌿</Text>
+
 
                     <TextInput
                         placeholder="Username"
@@ -209,5 +210,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         marginHorizontal: 60,
+    },
+    logo: {
+        width: 110,
+        height: 110,
+        borderRadius: 55,
+        marginBottom: 20,
     },
 });
