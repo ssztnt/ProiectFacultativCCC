@@ -141,7 +141,7 @@ export default function ProfileScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         {user?.profilePictureUrl && (
-                            <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="contain" />
+                            <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
                         )}
                         <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
                             <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>
@@ -249,9 +249,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fullImage: {
-        width: 250,
-        height: 250,
-        borderRadius: 12,
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        borderWidth: 2,
+        borderColor: AppColor.primary,
     },
     changeBtn: {
         marginTop: 15,

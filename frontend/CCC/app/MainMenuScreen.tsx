@@ -17,7 +17,7 @@ export default function MainMenuScreen() {
                     <Text style={styles.tabLabel}>Home</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {}} style={styles.tabButton}>
+                <TouchableOpacity onPress={() => router.push('/ExploreScreen')} style={styles.tabButton}>
                     <Ionicons name="search-outline" size={24} color="#444" />
                     <Text style={styles.tabLabel}>Explore</Text>
                 </TouchableOpacity>
