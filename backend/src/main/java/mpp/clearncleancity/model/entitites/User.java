@@ -2,6 +2,9 @@ package mpp.clearncleancity.model.entitites;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import mpp.clearncleancity.model.enums.OrganType;
+import mpp.clearncleancity.model.enums.UserRole;
+import org.springframework.context.support.BeanDefinitionDsl;
 
 @Entity
 @Table(name = "users")
@@ -21,6 +24,14 @@ public class User {
     private String password;
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "organ_type")
+    private OrganType organType;
 
 
     public User() {}
@@ -89,5 +100,21 @@ public class User {
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public OrganType getOrganType() {
+        return organType;
+    }
+
+    public void setOrganType(OrganType organType) {
+        this.organType = organType;
     }
 }

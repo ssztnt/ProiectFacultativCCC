@@ -1,4 +1,7 @@
 package mpp.clearncleancity.model.enums;
 
-public enum Role {
+public enum UserRole {
+    USER,
+    ADMIN,
+    ORGAN
 }
