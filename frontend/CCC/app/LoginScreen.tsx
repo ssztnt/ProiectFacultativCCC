@@ -9,7 +9,7 @@ import {
     Platform,
     TouchableWithoutFeedback,
     Keyboard,
-    Linking, Image,
+    Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IPaddress } from '../constants/NetworkConfig';
@@ -51,10 +51,13 @@ export default function LoginForm() {
 
                 setShowConfetti(true);
                 setTimeout(() => {
-                    router.replace({
-                        pathname: '/WelcomeScreen',
-                        params: { username: user.username },
-                    });
+                    if (user.role === 'ADMIN') {
+                        router.replace('/admin/AdminScreen');
+                    } else if (user.role === 'ORGAN') {
+                        router.replace('/organ/OrganScreen');
+                    } else {
+                        router.replace('/WelcomeScreen');
+                    }
                 }, 1500);
             } else {
                 shakeRef.current?.shake(800);
@@ -81,6 +84,7 @@ export default function LoginForm() {
             >
                 <Animatable.View ref={shakeRef} style={{ width: '100%' }}>
                     <Text style={styles.welcome}>Welcome back, eco-hero! 🌿</Text>
+
 
 
                     <TextInput
@@ -210,11 +214,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         marginHorizontal: 60,
-    },
-    logo: {
-        width: 110,
-        height: 110,
-        borderRadius: 55,
-        marginBottom: 20,
     },
 });
