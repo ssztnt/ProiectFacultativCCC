@@ -1,1 +1,1 @@
-export const IPaddress = "http://172.30.243.3:7777";
+export const IPaddress = "http://192.168.101.126:7777";
