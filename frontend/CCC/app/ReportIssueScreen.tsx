@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    FlatList
+    View, Text, TextInput, TouchableOpacity, StyleSheet,
+    Alert, Image, KeyboardAvoidingView, Platform, FlatList
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import AppColor from '../constants/AppColor';
 import { IPaddress } from '@/constants/NetworkConfig';
@@ -21,7 +16,10 @@ export default function ReportIssueScreen() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState(null);
-    const [location, setLocation] = useState('');
+    const [locationText, setLocationText] = useState('');
+    const [image, setImage] = useState<{ uri: string } | null>(null);
+    const [latitude, setLatitude] = useState<number | null>(null);
+    const [longitude, setLongitude] = useState<number | null>(null);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState([
         { label: 'Garbage', value: 'GARBAGE' },
@@ -34,8 +32,39 @@ export default function ReportIssueScreen() {
 
     const router = useRouter();
 
+    const fetchLocation = async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission denied', 'Location permission is required to attach coordinates.');
+            return;
+        }
+
+        const loc = await Location.getCurrentPositionAsync({});
+        setLatitude(loc.coords.latitude);
+        setLongitude(loc.coords.longitude);
+    };
+
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets.length > 0) {
+            const selected = result.assets[0];
+            setImage({
+                uri: selected.uri,
+                name: selected.fileName || 'photo.jpg',
+                type: selected.type || 'image/jpeg',
+            } as any);
+
+            await fetchLocation(); // Atașează automat locația
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!title || !description || !category || !location) {
+        if (!title || !description || !category || !locationText || !image || !latitude || !longitude) {
             Alert.alert('Please fill all required fields.');
             return;
         }
@@ -46,16 +75,26 @@ export default function ReportIssueScreen() {
             return;
         }
 
-        const issuePayload = { title, description, category, location };
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('location', locationText);
+        formData.append('latitude', String(latitude));
+        formData.append('longitude', String(longitude));
+        formData.append('image', {
+            uri: image.uri,
+            name: 'photo.jpg',
+            type: 'image/jpeg',
+        } as any);
 
         try {
             const response = await fetch(`${IPaddress}/api/issues/create`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(issuePayload),
+                body: formData,
             });
 
             if (response.ok) {
@@ -63,7 +102,10 @@ export default function ReportIssueScreen() {
                 setTitle('');
                 setDescription('');
                 setCategory(null);
-                setLocation('');
+                setLocationText('');
+                setImage(null);
+                setLatitude(null);
+                setLongitude(null);
                 router.replace('/MainMenuScreen');
             } else {
                 const err = await response.text();
@@ -77,22 +119,13 @@ export default function ReportIssueScreen() {
 
     const renderForm = () => (
         <View style={styles.card}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-
             <Text style={styles.header}>Report a Problem</Text>
 
             <Text style={styles.label}>Title *</Text>
             <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
             <Text style={styles.label}>Description *</Text>
-            <TextInput
-                style={[styles.input, { height: 80 }]}
-                value={description}
-                onChangeText={setDescription}
-                multiline
-            />
+            <TextInput style={[styles.input, { height: 80 }]} value={description} onChangeText={setDescription} multiline />
 
             <Text style={styles.label}>Category *</Text>
             <DropDownPicker
@@ -109,12 +142,13 @@ export default function ReportIssueScreen() {
             />
 
             <Text style={styles.label}>Location *</Text>
-            <TextInput
-                style={styles.input}
-                value={location}
-                onChangeText={setLocation}
-                placeholder="Strada, cartier..."
-            />
+            <TextInput style={styles.input} value={locationText} onChangeText={setLocationText} placeholder="Strada, cartier..." />
+
+            <Text style={styles.label}>Image *</Text>
+            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+                <Text style={styles.imagePickerText}>Choose Image</Text>
+            </TouchableOpacity>
+            {image && <Image source={{ uri: image.uri }} style={styles.preview} />}
 
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                 <Text style={styles.submitButtonText}>Submit Report</Text>
@@ -124,12 +158,9 @@ export default function ReportIssueScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
-            <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <FlatList
-                    data={[{ key: 'form' }]} // Single item to render the form
+                    data={[{ key: 'form' }]}
                     renderItem={renderForm}
                     keyExtractor={(item) => item.key}
                     contentContainerStyle={styles.container}
@@ -146,17 +177,6 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         backgroundColor: AppColor.background,
-    },
-    backButton: {
-        position: 'absolute',
-        top: 12,
-        left: 20,
-        zIndex: 10,
-    },
-    backButtonText: {
-        color: AppColor.primary,
-        fontSize: 16,
-        fontWeight: '600',
     },
     card: {
         backgroundColor: '#fff',
@@ -194,6 +214,23 @@ const styles = StyleSheet.create({
     },
     dropdownContainer: {
         backgroundColor: '#fff',
+        borderRadius: 10,
+    },
+    imagePicker: {
+        backgroundColor: '#eee',
+        padding: 12,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    imagePickerText: {
+        color: '#333',
+        fontWeight: '600',
+    },
+    preview: {
+        width: '100%',
+        height: 200,
+        marginTop: 10,
         borderRadius: 10,
     },
     submitButton: {

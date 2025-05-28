@@ -1,6 +1,7 @@
 package mpp.clearncleancity.controller;
 
 import mpp.clearncleancity.model.entitites.User;
+import mpp.clearncleancity.model.enums.UserRole;
 import mpp.clearncleancity.model.validators.UserValidator;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.security.JwtUtil;
@@ -97,7 +98,7 @@ public class AuthController {
                 encoder.encode(user.getPassword()),
                 user.getEmail()
         );
-        newUser.setRole(user.getRole()); // <-- IMPORTANT
+        newUser.setRole(UserRole.USER);
         newUser.setOrganType(user.getOrganType()); // dacă e cazul
 
         userRepository.save(newUser);
