@@ -14,11 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -96,6 +98,30 @@ public class IssueController {
         });
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateIssueStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Optional<Issue> optionalIssue = issueRepository.findById(id);
+        if (optionalIssue.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Issue issue = optionalIssue.get();
+
+        String statusStr = body.get("status");
+        if (statusStr == null) {
+            return ResponseEntity.badRequest().body("Missing status field");
+        }
+
+        try {
+            IssueStatus newStatus = IssueStatus.valueOf(statusStr.toUpperCase());
+            issue.setStatus(newStatus);
+            issueRepository.save(issue);
+            return ResponseEntity.ok(issue);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status value: " + statusStr);
+        }
+    }
+
     // PUT update issue
     @PutMapping("/{id}")
     public Issue updateIssue(@PathVariable Long id, @RequestBody Issue updatedIssue) {
@@ -126,4 +152,6 @@ public class IssueController {
         issueRepository.deleteById(id);
         log.info("Issue deleted successfully with ID: {}", id);
     }
+
+
 }

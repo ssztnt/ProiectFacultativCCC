@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, Pressable } from 'react-native';
+import {
+    View, Text, StyleSheet, FlatList, SafeAreaView, Pressable,
+    Modal, TouchableOpacity, Button
+} from 'react-native';
 import AppColor from '@/constants/AppColor';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IPaddress } from '@/constants/NetworkConfig';
+import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Issue {
     id: number;
@@ -16,6 +19,11 @@ interface Issue {
 
 export default function AdminScreen() {
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState<string>('');
 
     const fetchIssues = async () => {
         try {
@@ -29,18 +37,58 @@ export default function AdminScreen() {
         }
     };
 
-    useEffect(() => {
-        fetchIssues();
-    }, []);
+    const openIssue = (issue: Issue) => {
+        setSelectedIssue(issue);
+        setSelectedStatus(issue.status);
+        setModalVisible(true);
+    };
+
+    const markAsStatus = async (issueId: number, status: string) => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                console.error('[AUTH] Token JWT lipsă în AsyncStorage');
+                return;
+            }
+
+            console.log(`[REQUEST] PUT /issues/${issueId}/status`);
+            console.log('[PAYLOAD]', { status });
+            console.log('[HEADER]', { Authorization: `Bearer ${token}` });
+
+            const response = await fetch(`${IPaddress}/api/issues/${issueId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ status }),
+            });
+
+            if (response.ok) {
+                console.log('[SUCCESS] Issue updated');
+                setModalVisible(false);
+                fetchIssues(); // reîncarcă lista
+            } else {
+                const errorText = await response.text();
+                console.error('[FAILURE] Backend response not OK:', errorText);
+            }
+        } catch (error) {
+            console.error('[ERROR] Network/logic error:', error);
+        }
+    };
 
     const renderItem = ({ item }: { item: Issue }) => (
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => openIssue(item)}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <Text style={styles.meta}>Category: {item.category}</Text>
             <Text style={styles.meta}>Status: {item.status}</Text>
-        </View>
+        </TouchableOpacity>
     );
+
+    useEffect(() => {
+        fetchIssues();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -67,6 +115,36 @@ export default function AdminScreen() {
                     <Text style={styles.tabLabel}>Settings</Text>
                 </Pressable>
             </View>
+
+            <Modal visible={modalVisible} transparent={true} animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{selectedIssue?.title}</Text>
+                        <Text style={styles.description}>{selectedIssue?.description}</Text>
+                        <Text style={styles.meta}>Categorie: {selectedIssue?.category}</Text>
+                        <Text style={styles.meta}>Status curent: {selectedIssue?.status}</Text>
+
+                        <View style={{ marginVertical: 12, zIndex: 1000 }}>
+                            <DropDownPicker
+                                open={dropdownOpen}
+                                value={selectedStatus}
+                                items={[
+                                    { label: 'OPEN', value: 'OPEN' },
+                                    { label: 'IN_PROGRESS', value: 'IN_PROGRESS' },
+                                ]}
+                                setOpen={setDropdownOpen}
+                                setValue={setSelectedStatus}
+                                setItems={() => {}} // ignorăm
+                                containerStyle={{ zIndex: 1000 }}
+                            />
+                        </View>
+
+                        <Button title="Actualizează statusul" onPress={() => markAsStatus(selectedIssue!.id, selectedStatus)} />
+                        <View style={{ height: 10 }} />
+                        <Button title="Închide" onPress={() => setModalVisible(false)} color="#888" />
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -137,5 +215,25 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#444',
         marginTop: 4,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        width: '100%',
+        maxWidth: 400,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
     },
 });
