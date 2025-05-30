@@ -44,7 +44,10 @@ export default function MainMenuScreen() {
                     <Ionicons name="add-circle" size={60} color={AppColor.primary} />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {}} style={styles.tabButton}>
+                <TouchableOpacity
+                    onPress={() => router.push('/ViewHistoryReports')}
+                    style={styles.tabButton}
+                >
                     <Ionicons name="list-outline" size={24} color="#444" />
                     <Text style={styles.tabLabel}>Reports</Text>
                 </TouchableOpacity>

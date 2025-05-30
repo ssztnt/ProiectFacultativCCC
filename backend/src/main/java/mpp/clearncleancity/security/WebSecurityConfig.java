@@ -55,13 +55,14 @@ public class WebSecurityConfig {
                                 .requestMatchers(
                                         "/api/auth/**",
                                         "/api/password-reset/**",
-                                        "/api/issues",
+                                        "/api/issues/**",
                                         "/api/issues/{id}",
                                         "/uploads/**"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/api/issues/create-with-image",
                                         "/api/issues/create",
+                                        "/api/issues/my-reports",
                                         "/api/users/profile-picture"
                                 ).authenticated()
                                 .anyRequest().authenticated()

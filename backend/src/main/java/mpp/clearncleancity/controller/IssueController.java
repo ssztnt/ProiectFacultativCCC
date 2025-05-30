@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
@@ -39,6 +41,17 @@ public class IssueController {
     public List<Issue> getAllIssues() {
         log.info("Fetching all issues");
         return issueRepository.findAll();
+    }
+
+
+    @GetMapping("/my-reports")
+    public ResponseEntity<List<Issue>> getMyReports(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Issue> myIssues = issueRepository.findByUserId(user.getId());
+        return ResponseEntity.ok(myIssues);
     }
 
     @PostMapping("/create")
@@ -97,6 +110,8 @@ public class IssueController {
             return new RuntimeException("Issue not found");
         });
     }
+
+
 
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateIssueStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {

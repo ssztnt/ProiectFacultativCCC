@@ -17,4 +17,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
 
     List<Issue> findByStatus(String status);
+
+    List<Issue> findByUserId(Long userId);
 }

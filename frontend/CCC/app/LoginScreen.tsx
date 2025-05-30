@@ -54,7 +54,16 @@ export default function LoginForm() {
                     if (user.role === 'ADMIN') {
                         router.replace('/admin/AdminScreen');
                     } else if (user.role === 'ORGAN') {
-                        router.replace('/organ/OrganScreen');
+                        if (user.organType === 'POLITIE') {
+                            router.replace('/organ/politie/PolitieScreen');
+                        } else if (user.organType === 'SALUBRITATE') {
+                            router.replace('/organ/salubritate/SalubritateScreen');
+                        } else if (user.organType === 'POMPIERI') {
+                            router.replace('/organ/pompieri/PompieriScreen');
+                        } else {
+                            console.warn('OrganType necunoscut:', user.organType);
+                            router.replace('/WelcomeScreen');
+                        }
                     } else {
                         router.replace('/WelcomeScreen');
                     }
