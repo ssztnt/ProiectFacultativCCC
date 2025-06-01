@@ -46,16 +46,22 @@ public class IssueController {
             @RequestParam("location") String location,
             @RequestParam("latitude") double latitude,
             @RequestParam("longitude") double longitude,
-            @RequestParam("image") MultipartFile image,
+            @RequestParam(value = "image", required = false) MultipartFile image,
             Authentication authentication
     ) {
         log.info("Creating issue with image for user: {}", authentication.getName());
 
         try {
-            String filename = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-            Path path = Paths.get("uploads/issue-pictures/", filename);
-            Files.createDirectories(path.getParent());
-            Files.write(path, image.getBytes());
+            String filename = null;
+            String imageUrl = null;
+
+            if (image != null && !image.isEmpty()) {
+                filename = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+                Path path = Paths.get("uploads/issue-pictures/", filename);
+                Files.createDirectories(path.getParent());
+                Files.write(path, image.getBytes());
+                imageUrl = "/uploads/" + filename;
+            }
 
             String username = authentication.getName();
             User user = userRepository.findByUsername(username)
