@@ -5,6 +5,7 @@ public enum IssueCategory {
     BROKEN_ROAD,
     AIR_POLLUTION,
     WATER_LEAK,
+    FIRE,
     NOISE,
-    OTHER // de adaugat daca mai vin idei
+    OTHER
 }

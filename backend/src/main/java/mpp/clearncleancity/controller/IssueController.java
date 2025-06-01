@@ -4,15 +4,21 @@ import mpp.clearncleancity.model.entitites.User;
 import mpp.clearncleancity.model.entitites.Issue;
 import mpp.clearncleancity.model.enums.IssueCategory;
 import mpp.clearncleancity.model.enums.IssueStatus;
+import mpp.clearncleancity.model.enums.OrganType;
+import mpp.clearncleancity.model.validators.IssueValidator;
 import mpp.clearncleancity.repository.IssueRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +44,61 @@ public class IssueController {
     public List<Issue> getAllIssues() {
         log.info("Fetching all issues");
         return issueRepository.findAll();
+    }
+
+    @GetMapping("/police")
+    public List<Issue> getPoliceIssues(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getOrganType() != OrganType.POLITIE){
+            log.info("Unauthorized access to police data.");
+            throw new AuthorizationDeniedException("You are not authorized to access this information");
+        }
+
+        log.info("Fetching all Police concerning issues");
+        return issueRepository.findByCategoryIn(List.of("NOISE", "BROKEN_ROAD", "AIR_POLLUTION"));
+    }
+
+    @GetMapping("/sanitation")
+    public List<Issue> getSanitationIssues(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getOrganType() != OrganType.SALUBRITATE){
+            log.info("Unauthorized access to sanitation data.");
+            throw new AuthorizationDeniedException("You are not authorized to access this information");
+        }
+
+        log.info("Fetching all sanitation concerning issues");
+        return issueRepository.findByCategoryIn(List.of("GARBAGE"));
+    }
+
+    @GetMapping("/firefighter")
+    public List<Issue> getFirefighterIssues(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getOrganType() != OrganType.POMPIERI){
+            log.info("Unauthorized access to firefight data.");
+            throw new AuthorizationDeniedException("You are not authorized to access this information");
+        }
+
+        log.info("Fetching all firefighter concerning issues");
+        return issueRepository.findByCategoryIn(List.of("WATER_LEAK", "FIRE"));
+    }
+
+    @GetMapping("/my-reports")
+    public ResponseEntity<List<Issue>> getMyReports(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Issue> myIssues = issueRepository.findByUserId(user.getId());
+        return ResponseEntity.ok(myIssues);
     }
 
     @PostMapping("/create")

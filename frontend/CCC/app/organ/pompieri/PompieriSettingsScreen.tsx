@@ -19,9 +19,10 @@ import {IPaddress} from "@/constants/NetworkConfig";
 import {Ionicons} from "@expo/vector-icons";
 import Colors from '../constants/Colors';
 
-const policeColors = Colors.police;
+const firefighterColors = Colors.firefighters;
 
-export default function PolitieSettingsScreen() {
+
+export default function PompieriSettingsScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
@@ -99,7 +100,7 @@ export default function PolitieSettingsScreen() {
                     {user?.profilePictureUrl ? (
                         <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
                     ) : (
-                        <Ionicons name="person-circle-outline" size={80} color={policeColors.primary} />
+                        <Ionicons name="person-circle-outline" size={80} color={Colors.firefighters.primary} />
                     )}
                 </TouchableOpacity>
                 <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}</Text>
@@ -163,7 +164,7 @@ export default function PolitieSettingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        backgroundColor: policeColors.backgroundLight,
+        backgroundColor: Colors.firefighters.backgroundLight,
         padding: 20,
         justifyContent: 'center',
     },
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '700',
         marginTop: 10,
-        color: policeColors.primary,
+        color: Colors.firefighters.primary,
     },
     userTag: {
         fontSize: 14,
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 30,
-        backgroundColor: policeColors.primary,
+        backgroundColor: Colors.firefighters.primary,
         paddingVertical: 15,
         borderRadius: 10,
     },
@@ -257,11 +258,11 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 100,
         borderWidth: 2,
-        borderColor: policeColors.primary,
+        borderColor: Colors.firefighters.primary,
     },
     changeBtn: {
         marginTop: 15,
-        backgroundColor: policeColors.primary,
+        backgroundColor: Colors.firefighters.primary,
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,

@@ -6,8 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from '../constants/Colors';
 import { styles } from '../constants/issuesScreenStyle';
 
-
 const { width } = Dimensions.get('window');
+
+const colors = Colors;
+const firefightersColors = colors.firefighters;
 
 interface Issue {
     id: number;
@@ -19,20 +21,17 @@ interface Issue {
     createdAt: string;
 }
 
-const colors = Colors;
-const policeColors = colors.police;
-
 const statusConfig = {
     OPEN: {
         color: colors.open.status,
         gradient: colors.open.gradient,
-        icon: '🚨',
+        icon: '🔥',
         label: 'OPEN'
     },
     IN_PROGRESS: {
         color: colors.in_progress.status,
         gradient: colors.in_progress.gradient,
-        icon: '🚔',
+        icon: '🚒',
         label: 'IN-PROGRESS'
     },
     RESOLVED: {
@@ -43,8 +42,7 @@ const statusConfig = {
     }
 };
 
-
-export default function PolitieIssuesScreen() {
+export default function PompieriIssuesScreen() {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -58,7 +56,7 @@ export default function PolitieIssuesScreen() {
     const fetchReports = async () => {
         try {
             const token = await AsyncStorage.getItem('token');
-            const response = await fetch(`${IPaddress}/api/issues/police`, {
+            const response = await fetch(`${IPaddress}/api/issues/firefighter`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -169,7 +167,7 @@ export default function PolitieIssuesScreen() {
                     style={styles.issueTouchable}
                 >
                     <LinearGradient
-                        colors={colors.issue.background as [string, string]}
+                        colors={['#ffffff', '#f8f9fa']}
                         style={styles.issueCard}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -236,7 +234,7 @@ export default function PolitieIssuesScreen() {
         return (
             <View style={styles.loadingContainer}>
                 <LinearGradient
-                    colors={[policeColors.background, '#f8f9fa']}
+                    colors={colors.issue.background as [string, string]}
                     style={StyleSheet.absoluteFillObject}
                 />
                 <Text style={styles.loadingText}>🔄 Loading incidents...</Text>
@@ -247,7 +245,7 @@ export default function PolitieIssuesScreen() {
     return (
         <View style={styles.container}>
             <LinearGradient
-                colors={[Colors.police.background, '#f8f9fa']}
+                colors={colors.issue.background as [string, string]}
                 style={StyleSheet.absoluteFillObject}
             />
 
@@ -308,7 +306,7 @@ export default function PolitieIssuesScreen() {
                         ]}
                     >
                         <LinearGradient
-                            colors={colors.issue.background as [string, string]}
+                            colors={['#ffffff', '#f8f9fa']}
                             style={styles.modalContent}
                         >
                             <Text style={styles.modalTitle}>
@@ -362,7 +360,7 @@ export default function PolitieIssuesScreen() {
                                     activeOpacity={0.8}
                                 >
                                     <LinearGradient
-                                        colors={policeColors.gradient as [string, string]}
+                                        colors={firefightersColors.gradient as [string, string]}
                                         style={styles.saveButton}
                                     >
                                         <Text style={styles.saveButtonText}>

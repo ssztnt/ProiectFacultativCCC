@@ -1,30 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function PompieriScreen() {
+import SalubritateIssuesScreen from './SalubritateIssuesScreen';
+import SalubritateDispatchScreen from './SalubritateDispatchScreen';
+import SalubritateSettingsScreen from './SalubritateSettingsScreen';
+
+const Tab = createBottomTabNavigator();
+
+export default function SalubritateScreen() {
     return (
-        <View style={[styles.container, { backgroundColor: '#c0392b' }]}> {/* Roșu pompieri */}
-            <Text style={[styles.title, { fontFamily: 'Georgia' }]}>Pompieri</Text>
-            <Text style={styles.subtitle}>Situații de urgență și intervenții</Text>
-        </View>
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ color, size }) => {
+                    let iconName;
+                    if (route.name === 'Issues') iconName = 'trash';
+                    else if (route.name === 'Dispatch') iconName = 'send';
+                    else if (route.name === 'Settings') iconName = 'settings';
+                    return <Ionicons name={iconName as any} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: '#7be142',
+                tabBarInactiveTintColor: '#888',
+                headerShown: false,
+            })}
+        >
+            <Tab.Screen name="Issues" component={SalubritateIssuesScreen} />
+            <Tab.Screen name="Dispatch" component={SalubritateDispatchScreen} />
+            <Tab.Screen name="Settings" component={SalubritateSettingsScreen} />
+        </Tab.Navigator>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 28,
-        color: 'white',
-        marginBottom: 10,
-        textAlign: 'center'
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#f1f2f6',
-        textAlign: 'center'
-    },
-});

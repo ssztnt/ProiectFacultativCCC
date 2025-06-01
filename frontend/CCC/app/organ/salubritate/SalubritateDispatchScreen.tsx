@@ -5,10 +5,9 @@ import Colors from '../constants/Colors';
 import { styles } from '../constants/dispatchScreenStyle';
 
 const { width } = Dimensions.get('window');
+const sanitationColors = Colors.sanitation;
 
-const policeColors = Colors.police;
-
-export default function PompieriDispatchScreen() {
+export default function SalubritateDispatchScreen() {
     const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -42,28 +41,29 @@ export default function PompieriDispatchScreen() {
 
     const teams = [
         {
-            id: 'unit1',
-            name: 'Unit 1',
-            code: 'P-01',
-            members: ['Popescu', 'Ionescu', 'Georgescu'],
-            truck: 'Dacia Duster',
-            location: 'Str. Libertății',
+            id: 'one',
+            name: 'Team One',
+            code: 'S-01',
+            members: ['Mihai', 'Andrei', 'Mihnea', 'Mircea'],
+            truck: 'Volvo FL',
+            location: 'Street Constanta',
             status: 'Ready',
-            gradient: policeColors.gradient,
-            icon: '🚓',
+            gradient: sanitationColors.gradient,
+            icon: '🗑️',
         },
         {
-            id: 'unit2',
-            name: 'Unit 2',
-            code: 'P-02',
-            members: ['Marin', 'Nistor', 'Zaharia'],
-            truck: 'VW Passat',
-            location: 'Bd. Unirii',
+            id: 'two',
+            name: 'Team Two',
+            code: 'A-01',
+            members: ['Ioana', 'Dani', 'Dan', 'Darius'],
+            truck: 'Ford F500',
+            location: 'Street Bucuresti',
             status: 'Ready',
-            gradient: policeColors.gradient,
-            icon: '🚔',
+            gradient: sanitationColors.gradient,
+            icon: '🚛',
         },
     ];
+
 
     const handleTeamSelect = (teamId: string) => {
         setSelectedTeam(selectedTeam === teamId ? null : teamId);
@@ -72,7 +72,7 @@ export default function PompieriDispatchScreen() {
     return (
         <View style={styles.container}>
             <LinearGradient
-                colors={[policeColors.background, '#f8f9fa']}
+                colors={[sanitationColors.background, '#f8f9fa']}
                 style={StyleSheet.absoluteFillObject}
             />
 
@@ -119,7 +119,7 @@ export default function PompieriDispatchScreen() {
                                 style={styles.teamTouchable}
                             >
                                 <LinearGradient
-                                    colors={isSelected ? policeColors.gradient as [string, string] : ['#ffffff', '#f8f9fa']}
+                                    colors={isSelected ? sanitationColors.gradient as [string, string] : ['#ffffff', '#f8f9fa']}
                                     style={[
                                         styles.teamCard,
                                         isSelected && styles.selectedCard
@@ -134,7 +134,7 @@ export default function PompieriDispatchScreen() {
                                             <View>
                                                 <Text style={[
                                                     styles.teamName,
-                                                    { color: isSelected ? '#fff' : policeColors.primaryDark }
+                                                    { color: isSelected ? '#fff' : sanitationColors.primaryDark }
                                                 ]}>
                                                     {team.name}
                                                 </Text>
