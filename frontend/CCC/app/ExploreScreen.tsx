@@ -13,7 +13,8 @@ import { router } from "expo-router";
 import IssueCard from '../app/IssueCard';
 import { Ionicons } from "@expo/vector-icons";
 import { connectWebSocket, disconnectWebSocket } from '../services/WebSocket';
-import { IPaddress } from "@/constants/NetworkConfig";
+import {IPaddress} from "@/constants/NetworkConfig";
+import AppLayout from "@/components/AppLayout";
 
 const SOURCES = [
     { title: 'Cluj24', url: 'https://cluj24.ro' },
@@ -163,42 +164,44 @@ export default function ExploreScreen() {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#237F52" />
-            </TouchableOpacity>
-
-            <Text style={styles.header}>📰 Alege-ți sursa de știri din Cluj</Text>
-            {SOURCES.map((source, index) => (
-                <TouchableOpacity
-                    key={index}
-                    style={styles.card}
-                    onPress={() => handleVisit(source.title, source.url)}
-                >
-                    <Text style={styles.cardText}>{source.title}</Text>
+        <AppLayout>
+            <ScrollView contentContainerStyle={styles.container}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="#237F52" />
                 </TouchableOpacity>
-            ))}
 
-            {history.length > 0 && (
-                <View style={styles.historyBox}>
-                    <Text style={styles.historyTitle}>🕓 Istoric Accesări</Text>
-                    {history.map((item, i) => (
-                        <Text key={i} style={styles.historyItem}>• {item}</Text>
+                <Text style={styles.header}>📰 Alege-ți sursa de știri din Cluj</Text>
+                {SOURCES.map((source, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        style={styles.card}
+                        onPress={() => handleVisit(source.title, source.url)}
+                    >
+                        <Text style={styles.cardText}>{source.title}</Text>
+                    </TouchableOpacity>
+                ))}
+
+                {history.length > 0 && (
+                    <View style={styles.historyBox}>
+                        <Text style={styles.historyTitle}>🕓 Istoric Accesări</Text>
+                        {history.map((item, i) => (
+                            <Text key={i} style={styles.historyItem}>• {item}</Text>
+                        ))}
+                    </View>
+                )}
+
+                <View style={styles.issuesBox}>
+                    <Text style={styles.issuesTitle}>📋 Issues</Text>
+                    {issues.map((issue) => (
+                        <IssueCard
+                            key={issue.id}
+                            issue={issue}
+                            onVote={handleVoteUpdate}
+                        />
                     ))}
                 </View>
-            )}
-
-            <View style={styles.issuesBox}>
-                <Text style={styles.issuesTitle}>📋 Issues</Text>
-                {issues.map((issue) => (
-                    <IssueCard
-                        key={issue.id}
-                        issue={issue}
-                        onVote={handleVoteUpdate}
-                    />
-                ))}
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </AppLayout>
     );
 }
 

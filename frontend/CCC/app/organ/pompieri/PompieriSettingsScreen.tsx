@@ -164,7 +164,7 @@ export default function PompieriSettingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        backgroundColor: Colors.firefighters.background,
+        backgroundColor: firefighterColors.background,
         padding: 20,
         justifyContent: 'center',
     },

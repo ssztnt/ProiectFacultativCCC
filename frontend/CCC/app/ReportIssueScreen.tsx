@@ -108,7 +108,7 @@ export default function ReportIssueScreen() {
                 setImage(null);
                 setLatitude(null);
                 setLongitude(null);
-                router.replace('/MainMenuScreen');
+                router.replace('/HomeScreen');
             } else {
                 const err = await response.text();
                 Alert.alert('Failed', err);
