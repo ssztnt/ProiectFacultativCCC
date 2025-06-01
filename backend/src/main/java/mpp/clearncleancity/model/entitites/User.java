@@ -33,7 +33,6 @@ public class User {
     @Column(name = "organ_type")
     private OrganType organType;
 
-
     public User() {}
 
     public User(String username, String firstName, String lastName, String password, String email) {

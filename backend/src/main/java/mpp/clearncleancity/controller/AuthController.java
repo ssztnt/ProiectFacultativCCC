@@ -99,7 +99,6 @@ public class AuthController {
                 user.getEmail()
         );
         newUser.setRole(UserRole.USER);
-        newUser.setOrganType(user.getOrganType()); // dacă e cazul
 
         userRepository.save(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");

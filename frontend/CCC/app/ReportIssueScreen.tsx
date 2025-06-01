@@ -27,6 +27,7 @@ export default function ReportIssueScreen() {
         { label: 'Air Pollution', value: 'AIR_POLLUTION' },
         { label: 'Water Leak', value: 'WATER_LEAK' },
         { label: 'Noise', value: 'NOISE' },
+        { label: 'Fire', value: 'FIRE' },
         { label: 'Other', value: 'OTHER' },
     ]);
 
