@@ -120,7 +120,6 @@ export default function HomeScreen() {
                         {memoizedMarkers}
                         <Marker pinColor={'blue'} coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
                     </MapView>
-
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={goToMyLocation} style={styles.locationBtn}>
