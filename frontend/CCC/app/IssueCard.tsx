@@ -56,6 +56,8 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
         fetchVotes();
     }, [issue.id]);
 
+    console.log(`[IssueCard] Constructed image URL: ${IPaddress}/uploads/issue-pictures/${issue.imageUrl}`);
+
     const voteApiCall = async (type: 'UPVOTE' | 'DOWNVOTE') => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
@@ -113,7 +115,7 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
     return (
         <View style={styles.card}>
             {issue.imageUrl && (
-                <Image source={{ uri: baseUrl + issue.imageUrl }} style={styles.image} />
+                <Image source={{ uri: `${IPaddress}/uploads/issue-pictures/${issue.imageUrl}` }} style={styles.image} />
             )}
             <View style={styles.details}>
                 <Text style={styles.title}>{issue.title}</Text>

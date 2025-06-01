@@ -55,7 +55,7 @@ export default function ProfileScreen() {
             } as any);
 
             try {
-                const response = await fetch(`${IPaddress}/api/users/profile-picture`, {
+                const response = await fetch(`${IPaddress}/api/users/profile-pictures`, {
                     method: 'PUT',
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -95,7 +95,13 @@ export default function ProfileScreen() {
                 <View style={styles.userCard}>
                     <TouchableOpacity onPress={() => setModalVisible(true)}>
                         {user?.profilePictureUrl ? (
-                            <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
+                            <>
+                                {console.log('Image source:', `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}`)}
+                                <Image
+                                    source={{ uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }}
+                                    style={styles.avatar}
+                                />
+                            </>
                         ) : (
                             <Ionicons name="person-circle-outline" size={80} color={AppColor.primary} />
                         )}
@@ -143,7 +149,7 @@ export default function ProfileScreen() {
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
                             {user?.profilePictureUrl && (
-                                <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
+                                <Image source={{ uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }} style={styles.fullImage} />
                             )}
                             <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
                                 <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>

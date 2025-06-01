@@ -49,7 +49,6 @@ public class User {
         this.password = password;
     }
 
-    // Getters și Setters
     public Long getId() {
         return id;
     }
@@ -98,7 +97,6 @@ public class User {
         this.email = email;
     }
 
-    // getter + setter
     public String getProfilePictureUrl() {
         return profilePictureUrl;
     }

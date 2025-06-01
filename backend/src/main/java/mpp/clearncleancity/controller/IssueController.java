@@ -53,7 +53,7 @@ public class IssueController {
 
         try {
             String filename = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-            Path path = Paths.get("uploads", filename);
+            Path path = Paths.get("uploads/issue-pictures/", filename);
             Files.createDirectories(path.getParent());
             Files.write(path, image.getBytes());
 
@@ -68,7 +68,7 @@ public class IssueController {
             issue.setLocation(location);
             issue.setLatitude(latitude);
             issue.setLongitude(longitude);
-            issue.setImageUrl("/uploads/" + filename);
+            issue.setImageUrl(filename);
             issue.setUser(user);
             issue.setStatus(IssueStatus.OPEN);
 

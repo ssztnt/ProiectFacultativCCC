@@ -5,7 +5,7 @@ import { IPaddress } from "@/constants/NetworkConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from '../constants/Colors';
 import { styles } from '../constants/issuesScreenStyle';
-
+import { connectWebSocket, disconnectWebSocket } from '../../../services/WebSocket';
 
 const { width } = Dimensions.get('window');
 
@@ -89,7 +89,32 @@ export default function PolitieIssuesScreen() {
 
     useEffect(() => {
         fetchReports();
+
+        // Conectare websocket
+        connectWebSocket(
+            (updatedIssue: any) => {
+                if (updatedIssue.action === 'delete') {
+                    setIssues(prevIssues => prevIssues.filter(issue => issue.id !== updatedIssue.data.id));
+                } else {
+                    setIssues(prevIssues => {
+                        const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
+                        if (index !== -1) {
+                            const newIssues = [...prevIssues];
+                            newIssues[index] = updatedIssue.data;
+                            return newIssues;
+                        }
+                        return [...prevIssues, updatedIssue.data];
+                    });
+                }
+            }
+        );
+
+        // WebSocket disconnect on unmount
+        return () => {
+            disconnectWebSocket();
+        };
     }, []);
+
 
     const openStatusModal = (issue: Issue) => {
         setSelectedIssue(issue);
@@ -285,7 +310,7 @@ export default function PolitieIssuesScreen() {
             {/* Issues List */}
             <FlatList
                 data={issues}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item, index) => (item.id ? item.id.toString() : `issue-${index}`)}
                 renderItem={renderIssueItem}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
