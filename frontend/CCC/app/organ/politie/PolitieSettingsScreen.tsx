@@ -163,7 +163,7 @@ export default function PolitieSettingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        backgroundColor: policeColors.backgroundLight,
+        backgroundColor: policeColors.background,
         padding: 20,
         justifyContent: 'center',
     },

@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import IssueCard from '../app/IssueCard';
 import { Ionicons } from "@expo/vector-icons";
 import { connectWebSocket, disconnectWebSocket } from '../services/WebSocket';
+import {IPaddress} from "@/constants/NetworkConfig";
 
 const SOURCES = [
     { title: 'Cluj24', url: 'https://cluj24.ro' },
@@ -46,7 +47,7 @@ export default function ExploreScreen() {
 
         const fetchIssues = async () => {
             try {
-                const response = await fetch('http://192.168.101.133:7777/api/issues');
+                const response = await fetch(`${IPaddress}/api/issues`);
                 if (response.ok) {
                     const data = await response.json();
                     setIssues(data);

@@ -164,7 +164,7 @@ export default function SalubritateSettingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        backgroundColor: sanitationColors.backgroundLight,
+        backgroundColor: sanitationColors.background,
         padding: 20,
         justifyContent: 'center',
     },

@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -148,6 +149,39 @@ public class IssueController {
         }
     }
 
+    @GetMapping("/{id}")
+    public Issue getIssueById(@PathVariable Long id) {
+        log.info("Fetching issue with ID: {}", id);
+        return issueRepository.findById(id).orElseThrow(() -> {
+            log.error("Issue not found with ID: {}", id);
+            return new RuntimeException("Issue not found");
+        });
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateIssueStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Optional<Issue> optionalIssue = issueRepository.findById(id);
+        if (optionalIssue.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Issue issue = optionalIssue.get();
+
+        String statusStr = body.get("status");
+        if (statusStr == null) {
+            return ResponseEntity.badRequest().body("Missing status field");
+        }
+
+        try {
+            IssueStatus newStatus = IssueStatus.valueOf(statusStr.toUpperCase());
+            issue.setStatus(newStatus);
+            issueRepository.save(issue);
+            return ResponseEntity.ok(issue);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status value: " + statusStr);
+        }
+    }
+
     @PutMapping("/{id}")
     public Issue updateIssue(@PathVariable Long id, @RequestBody Issue updatedIssue) {
         log.info("Updating issue with ID: {}", id);
@@ -164,7 +198,7 @@ public class IssueController {
         Issue savedIssue = issueRepository.save(existing);
         log.info("Issue updated successfully with ID: {}", savedIssue.getId());
 
-        sendLiveUpdate();
+        //sendLiveUpdate();
 
         return savedIssue;
     }

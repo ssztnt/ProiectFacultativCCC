@@ -137,7 +137,7 @@ export default function PolitieIssuesScreen() {
                 );
                 closeModal();
             } else {
-                console.error('Failed to update status');
+                console.error('Failed to update status ' + response.status);
             }
         } catch (err) {
             console.error(err);
