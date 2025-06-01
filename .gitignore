@@ -24,3 +24,5 @@
 
 # Ignoră modulele npm
 node_modules/
+
+uploads

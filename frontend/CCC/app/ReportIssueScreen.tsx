@@ -162,24 +162,10 @@ export default function ReportIssueScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <TouchableOpacity onPress={() => router.replace('/HomeScreen')} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color={AppColor.primary} />
                     </TouchableOpacity>
                 </View>
-                <FlatList
-                    data={[{ key: 'form' }]}
-                    renderItem={renderForm}
-                    keyExtractor={(item) => item.key}
-                    contentContainerStyle={styles.container}
-                    keyboardShouldPersistTaps="handled"
-                />
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    );
-
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <FlatList
                     data={[{ key: 'form' }]}
                     renderItem={renderForm}

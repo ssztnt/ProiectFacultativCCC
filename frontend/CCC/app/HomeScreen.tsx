@@ -87,17 +87,13 @@ export default function HomeScreen() {
                     <Text style={styles.tipText}>Reporting trash on time helps prevent air and soil pollution. 🌍</Text>
                 </View>
 
-                <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/ReportIssueScreen')}>
+                <TouchableOpacity style={styles.quickAction} onPress={() => router.replace('/ReportIssueScreen')}>
                     <Text style={styles.quickText}>🚨 Report a problem now</Text>
                 </TouchableOpacity>
 
                 <View style={{ height: 1, backgroundColor: '#ccc', marginVertical: 20 }} />
 
                 <Text style={styles.title}>🗺️ Cluj-Napoca Map</Text>
-
-                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/HomeScreen')}>
-                    <Text style={styles.backText}>← </Text>
-                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.mapWrapper}>
                     <MapView

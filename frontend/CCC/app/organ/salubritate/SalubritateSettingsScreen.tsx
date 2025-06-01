@@ -91,10 +91,6 @@ export default function SalubritateSettingsScreen() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#237F52" />
-            </TouchableOpacity>
-
             <View style={styles.userCard}>
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     {user?.profilePictureUrl ? (

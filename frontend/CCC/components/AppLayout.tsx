@@ -34,7 +34,7 @@ export default function AppLayout({ children, hideFooter = false }: AppLayoutPro
             {/* Footer Navigation */}
             <View style={styles.footer}>
                 <TouchableOpacity
-                    onPress={() => router.push('/HomeScreen')}
+                    onPress={() => router.replace('/HomeScreen')}
                     style={styles.tabButton}
                 >
                     <Ionicons
@@ -48,7 +48,7 @@ export default function AppLayout({ children, hideFooter = false }: AppLayoutPro
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => router.push('/ExploreScreen')}
+                    onPress={() => router.replace('/ExploreScreen')}
                     style={styles.tabButton}
                 >
                     <Ionicons
@@ -62,14 +62,14 @@ export default function AppLayout({ children, hideFooter = false }: AppLayoutPro
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => router.push('/ReportIssueScreen')}
+                    onPress={() => router.replace('/ReportIssueScreen')}
                     style={styles.reportButton}
                 >
                     <Ionicons name="add-circle" size={60} color={AppColor.primary} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => router.push('/ViewHistoryReports')}
+                    onPress={() => router.replace('/ViewHistoryReports')}
                     style={styles.tabButton}
                 >
                     <Ionicons
@@ -83,7 +83,7 @@ export default function AppLayout({ children, hideFooter = false }: AppLayoutPro
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => router.push('/ProfileScreen')}
+                    onPress={() => router.replace('/ProfileScreen')}
                     style={styles.tabButton}
                 >
                     <Ionicons

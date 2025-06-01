@@ -48,7 +48,7 @@ export default function ResetRequestScreen() {
             <TouchableOpacity style={styles.button} onPress={handleResetRequest}>
                 <Text style={styles.buttonText}>Trimite codul</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.replace('/ProfileScreen')} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color="#237F52" />
             </TouchableOpacity>
         </View>

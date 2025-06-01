@@ -1,3 +1,4 @@
+// 📁 PolitieIssuesScreen.tsx (actualizat)
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -5,7 +6,7 @@ import { IPaddress } from "@/constants/NetworkConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from '../constants/Colors';
 import { styles } from '../constants/issuesScreenStyle';
-
+import { IssueItem } from '@/components/IssueItem';
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +43,6 @@ const statusConfig = {
         label: 'RESOLVED'
     }
 };
-
 
 export default function PolitieIssuesScreen() {
     const [issues, setIssues] = useState<Issue[]>([]);
@@ -144,93 +144,15 @@ export default function PolitieIssuesScreen() {
         }
     };
 
-    const renderIssueItem = ({ item, index }: { item: Issue, index: number }) => {
-        const config = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.OPEN;
-
-        // @ts-ignore
-        return (
-            <Animated.View
-                style={[
-                    styles.issueWrapper,
-                    {
-                        opacity: fadeAnim,
-                        transform: [{
-                            translateY: slideAnim.interpolate({
-                                inputRange: [0, 30],
-                                outputRange: [0, 30 + (index * 10)],
-                            })
-                        }]
-                    }
-                ]}
-            >
-                <TouchableOpacity
-                    onPress={() => openStatusModal(item)}
-                    activeOpacity={0.9}
-                    style={styles.issueTouchable}
-                >
-                    <LinearGradient
-                        colors={colors.issue.background as [string, string]}
-                        style={styles.issueCard}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        {/* Priority Indicator */}
-                        <View style={[styles.priorityBar, { backgroundColor: config.color }]} />
-
-                        {/* Header */}
-                        <View style={styles.issueHeader}>
-                            <View style={styles.issueTitleSection}>
-                                <Text style={styles.issueIcon}>{config.icon}</Text>
-                                <View style={styles.issueTitleContainer}>
-                                    <Text style={styles.issueTitle} numberOfLines={2}>
-                                        {item.title}
-                                    </Text>
-                                    <Text style={styles.issueId}>#{item.id}</Text>
-                                </View>
-                            </View>
-
-                            <LinearGradient
-                                colors={config.gradient as [string, string]}
-                                style={styles.statusBadge}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                            >
-                                <Text style={styles.statusBadgeText}>
-                                    {config.label}
-                                </Text>
-                            </LinearGradient>
-                        </View>
-
-                        {/* Location */}
-                        <View style={styles.locationRow}>
-                            <Text style={styles.locationIcon}>📍</Text>
-                            <Text style={styles.locationText} numberOfLines={1}>
-                                {item.location}
-                            </Text>
-                        </View>
-
-                        {/* Description */}
-                        <Text style={styles.descriptionText} numberOfLines={3}>
-                            {item.description}
-                        </Text>
-
-                        {/* Footer */}
-                        <View style={styles.issueFooter}>
-                            <Text style={styles.timestampText}>
-                                🕒 {new Date(item.createdAt).toLocaleDateString('ro-RO', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
-                            </Text>
-                            <Text style={styles.tapHint}>Tap to update →</Text>
-                        </View>
-                    </LinearGradient>
-                </TouchableOpacity>
-            </Animated.View>
-        );
-    };
+    const renderIssueItem = ({ item, index }: { item: Issue, index: number }) => (
+        <IssueItem
+            item={item}
+            index={index}
+            onPress={openStatusModal}
+            fadeAnim={fadeAnim}
+            slideAnim={slideAnim}
+        />
+    );
 
     if (loading) {
         return (
