@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +26,9 @@ public class VoteController {
 
     @Autowired
     private IssueRepository issueRepository;
+
+    @Autowired
+    private WebSocketController webSocketController;
 
     // 1. POST vote (upvote or downvote)
     @PostMapping("/{issueId}")
@@ -64,7 +68,6 @@ public class VoteController {
 
         return ResponseEntity.ok().build();
     }
-
 
     // 2. GET votul curent al userului pentru un issue
     @GetMapping("/{issueId}/my-vote")

@@ -15,114 +15,92 @@ interface IssueCardProps {
         imageUrl: string;
         userVote?: 'UPVOTE' | 'DOWNVOTE' | null;
     };
-    onVote?: (id: string, upVotes: number, downVotes: number, userVote: 'UPVOTE' | 'DOWNVOTE' | null) => void;
+    onVote?: (
+        id: string,
+        upVotes: number,
+        downVotes: number,
+        userVote: 'UPVOTE' | 'DOWNVOTE' | null
+    ) => void;
 }
 
 export default function IssueCard({ issue, onVote }: IssueCardProps) {
     const baseUrl = IPaddress;
-    // Initialize votes with 0, vor fi încărcate cu fetch
     const [upVotes, setUpVotes] = useState(0);
     const [downVotes, setDownVotes] = useState(0);
     const [userVote, setUserVote] = useState<'UPVOTE' | 'DOWNVOTE' | null>(issue.userVote ?? null);
 
     useEffect(() => {
+        setUserVote(issue.userVote ?? null);
+    }, [issue.userVote]);
+
+    useEffect(() => {
         const fetchVotes = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
-                if (!token) {
-                    console.warn('[fetchVotes] No token found');
-                    return;
-                }
+                if (!token) return;
 
-                console.log(`[fetchVotes] Fetching votes for issue ${issue.id}...`);
-                const upRes = await fetch(`${baseUrl}/api/votes/${issue.id}/upvotes`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const downRes = await fetch(`${baseUrl}/api/votes/${issue.id}/downvotes`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const [upRes, downRes] = await Promise.all([
+                    fetch(`${baseUrl}/api/votes/${issue.id}/upvotes`, { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch(`${baseUrl}/api/votes/${issue.id}/downvotes`, { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
 
                 if (upRes.ok && downRes.ok) {
-                    const upCount = await upRes.json();
-                    const downCount = await downRes.json();
-                    setUpVotes(upCount);
-                    setDownVotes(downCount);
-                    console.log(`[fetchVotes] Received: up=${upCount}, down=${downCount}`);
-                } else {
-                    console.warn(`[fetchVotes] Failed to fetch votes. upRes.ok=${upRes.ok}, downRes.ok=${downRes.ok}`);
+                    setUpVotes(await upRes.json());
+                    setDownVotes(await downRes.json());
                 }
-            } catch (error) {
-                console.error('[fetchVotes] Error:', error);
+            } catch (err) {
+                console.error('[fetchVotes] Error:', err);
             }
         };
 
         fetchVotes();
     }, [issue.id]);
 
-    const handleVote = async (type: 'up' | 'down') => {
+    const voteApiCall = async (type: 'UPVOTE' | 'DOWNVOTE') => {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+            Alert.alert('Eroare', 'Nu ești autentificat.');
+            return null;
+        }
+
+        const url = `${baseUrl}/api/votes/${issue.id}?upvote=${type === 'UPVOTE'}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return { success: response.ok, status: response.status, body: await response.text() };
+    };
+
+    const updateVoteState = (type: 'UPVOTE' | 'DOWNVOTE') => {
+        const isSameVote = userVote === type;
+
+        const newUpVotes = type === 'UPVOTE'
+            ? isSameVote ? upVotes - 1 : upVotes + 1 + (userVote === 'DOWNVOTE' ? -1 : 0)
+            : upVotes - (userVote === 'UPVOTE' ? 1 : 0);
+
+        const newDownVotes = type === 'DOWNVOTE'
+            ? isSameVote ? downVotes - 1 : downVotes + 1 + (userVote === 'UPVOTE' ? -1 : 0)
+            : downVotes - (userVote === 'DOWNVOTE' ? 1 : 0);
+
+        setUpVotes(Math.max(newUpVotes, 0));
+        setDownVotes(Math.max(newDownVotes, 0));
+        setUserVote(isSameVote ? null : type);
+        onVote?.(issue.id, Math.max(newUpVotes, 0), Math.max(newDownVotes, 0), isSameVote ? null : type);
+    };
+
+    const handleVote = async (direction: 'up' | 'down') => {
+        const type = direction === 'up' ? 'UPVOTE' : 'DOWNVOTE';
         try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                Alert.alert('Eroare', 'Nu ești autentificat.');
-                return;
-            }
+            const result = await voteApiCall(type);
+            if (!result) return;
 
-            const upvote = type === 'up';
-            const url = `${baseUrl}/api/votes/${issue.id}?upvote=${upvote}`;
-            console.log(`[handleVote] Sending vote: ${type.toUpperCase()} -> ${url}`);
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const responseText = await response.text(); // Capturam textul oricum
-            console.log(`[handleVote] Response status: ${response.status}, body: ${responseText}`);
-
-            if (response.ok) {
-                console.log(`[handleVote] Vote sent successfully. Previous vote: ${userVote}`);
-
-                if (userVote === (type === 'up' ? 'UPVOTE' : 'DOWNVOTE')) {
-                    console.log(`[handleVote] Unvoting ${type}`);
-                    if (type === 'up') {
-                        setUpVotes(v => Math.max(v - 1, 0));
-                    } else {
-                        setDownVotes(v => Math.max(v - 1, 0));
-                    }
-                    setUserVote(null);
-                    onVote?.(issue.id,
-                        type === 'up' ? upVotes - 1 : upVotes,
-                        type === 'down' ? downVotes - 1 : downVotes,
-                        null);
-                } else {
-                    if (userVote === null) {
-                        console.log(`[handleVote] New vote: ${type}`);
-                        if (type === 'up') {
-                            setUpVotes(v => v + 1);
-                        } else {
-                            setDownVotes(v => v + 1);
-                        }
-                    } else {
-                        console.log(`[handleVote] Changing vote from ${userVote} to ${type}`);
-                        if (type === 'up') {
-                            setUpVotes(v => v + 1);
-                            setDownVotes(v => (v > 0 ? v - 1 : 0));
-                        } else {
-                            setDownVotes(v => v + 1);
-                            setUpVotes(v => (v > 0 ? v - 1 : 0));
-                        }
-                    }
-                    setUserVote(type === 'up' ? 'UPVOTE' : 'DOWNVOTE');
-                    onVote?.(
-                        issue.id,
-                        type === 'up' ? upVotes + 1 : upVotes,
-                        type === 'down' ? downVotes + 1 : downVotes,
-                        type === 'up' ? 'UPVOTE' : 'DOWNVOTE'
-                    );
-                }
+            console.log(`[handleVote] Response ${result.status}: ${result.body}`);
+            if (result.success) {
+                updateVoteState(type);
             } else {
                 Alert.alert('Eroare', 'Nu s-a putut trimite votul.');
             }
@@ -132,12 +110,11 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
         }
     };
 
-
     return (
         <View style={styles.card}>
-            {issue.imageUrl ? (
+            {issue.imageUrl && (
                 <Image source={{ uri: baseUrl + issue.imageUrl }} style={styles.image} />
-            ) : null}
+            )}
             <View style={styles.details}>
                 <Text style={styles.title}>{issue.title}</Text>
                 <Text style={styles.description}>{issue.description}</Text>
@@ -208,7 +185,6 @@ const styles = StyleSheet.create({
     voteRow: {
         flexDirection: 'row',
         marginTop: 10,
-        justifyContent: 'flex-start',
         gap: 20,
     },
     voteButton: {
