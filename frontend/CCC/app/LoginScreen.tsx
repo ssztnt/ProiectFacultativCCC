@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
     View,
     Text,
@@ -8,21 +8,28 @@ import {
     KeyboardAvoidingView,
     Platform,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IPaddress } from '../constants/NetworkConfig';
 import AppColor from '../constants/AppColor';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Animatable from 'react-native-animatable';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
+    const shakeRef = useRef<any>(null);
+    const confettiRef = useRef(null);
+    const [showConfetti, setShowConfetti] = useState(false);
 
     const handleLogin = async () => {
         if (!username || !password) {
+            shakeRef.current?.shake(800);
             alert('Please enter both username and password.');
             return;
         }
@@ -30,9 +37,7 @@ export default function LoginForm() {
         try {
             const response = await fetch(`${IPaddress}/api/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
 
@@ -44,13 +49,27 @@ export default function LoginForm() {
                 await AsyncStorage.setItem('token', token);
                 await AsyncStorage.setItem('userData', JSON.stringify(user));
 
-                console.log('Token & user saved');
-
-                router.replace({
-                    pathname: '/WelcomeScreen',
-                    params: { username: user.username },
-                });
+                setShowConfetti(true);
+                setTimeout(() => {
+                    if (user.role === 'ADMIN') {
+                        router.replace('/admin/AdminScreen');
+                    } else if (user.role === 'ORGAN') {
+                        if (user.organType === 'POLITIE') {
+                            router.replace('/organ/politie/PolitieScreen');
+                        } else if (user.organType === 'SALUBRITATE') {
+                            router.replace('/organ/salubritate/SalubritateScreen');
+                        } else if (user.organType === 'POMPIERI') {
+                            router.replace('/organ/pompieri/PompieriScreen');
+                        } else {
+                            console.warn('OrganType necunoscut:', user.organType);
+                            router.replace('/WelcomeScreen');
+                        }
+                    } else {
+                        router.replace('/WelcomeScreen');
+                    }
+                }, 1500);
             } else {
+                shakeRef.current?.shake(800);
                 const err = await response.text();
                 alert(`Login Failed! ${err}`);
             }
@@ -60,54 +79,73 @@ export default function LoginForm() {
         }
     };
 
+    const openLink = (url: string) => {
+        Linking.openURL(url).catch(() => {
+            alert('Failed to open link');
+        });
+    };
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <Text style={styles.welcome}>Welcome!</Text>
+                <Animatable.View ref={shakeRef} style={{ width: '100%' }}>
+                    <Text style={styles.welcome}>Welcome back, eco-hero! 🌿</Text>
 
-                <TextInput
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    style={styles.input}
-                    placeholderTextColor="#999"
-                />
-                <TextInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    style={styles.input}
-                    placeholderTextColor="#999"
-                />
 
-                <TouchableOpacity onPress={() => router.push('/ResetRequestScreen')}>
-                    <Text style={styles.forgotPassword}>Forgot password?</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginText}>Login</Text>
-                </TouchableOpacity>
+                    <TextInput
+                        placeholder="Username"
+                        value={username}
+                        onChangeText={setUsername}
+                        style={styles.input}
+                        placeholderTextColor="#999"
+                    />
+                    <TextInput
+                        placeholder="Password"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        style={styles.input}
+                        placeholderTextColor="#999"
+                    />
 
-                <View style={styles.registerContainer}>
-                    <Text style={styles.registerText}>Not a member?</Text>
-                    <TouchableOpacity onPress={() => router.push('/SignUpScreen')}>
-                        <Text style={styles.registerNow}> Register now</Text>
+                    <TouchableOpacity onPress={() => router.push('/ResetRequestScreen')}>
+                        <Text style={styles.forgotPassword}>Forgot password?</Text>
                     </TouchableOpacity>
-                </View>
 
-                <View style={styles.separator} />
+                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                        <Text style={styles.loginText}>Login</Text>
+                    </TouchableOpacity>
 
-                <Text style={styles.continueText}>Or continue with</Text>
+                    <View style={styles.registerContainer}>
+                        <Text style={styles.registerText}>Not a member?</Text>
+                        <TouchableOpacity onPress={() => router.push('/SignUpScreen')}>
+                            <Text style={styles.registerNow}> Register now</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                <View style={styles.socialIcons}>
-                    <FontAwesome name="google" size={28} color="#DB4437" />
-                    <FontAwesome name="apple" size={28} color="#000" />
-                    <FontAwesome name="facebook" size={28} color="#4267B2" />
-                </View>
+                    <View style={styles.separator} />
+
+                    <Text style={styles.continueText}>Contact us </Text>
+
+                    <View style={styles.socialIcons}>
+                        <TouchableOpacity onPress={() => openLink('https://www.instagram.com/mrbeast/')}>
+                            <FontAwesome name="instagram" size={28} color={AppColor.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => openLink('https://github.com/ssztnt')}>
+                            <FontAwesome name="github" size={28} color={AppColor.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => openLink('https://www.linkedin.com/in/dan-gaspar-926b892b6/?originalSubdomain=ro')}>
+                            <FontAwesome name="linkedin" size={28} color={AppColor.primary} />
+                        </TouchableOpacity>
+                    </View>
+                </Animatable.View>
+                {showConfetti && (
+                    <ConfettiCannon count={80} origin={{ x: 200, y: 300 }} fadeOut autoStart explosionSpeed={350} />
+                )}
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
@@ -121,10 +159,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     welcome: {
-        fontSize: 28,
-        fontWeight: '700',
-        marginBottom: 30,
+        fontSize: 22,
+        fontWeight: 'bold',       // schimbă stilul
+        fontStyle: 'italic',      // opțional: adaugă italic
         color: '#111',
+        marginBottom: 30,
+        textAlign: 'center',
     },
     input: {
         backgroundColor: '#fff',
@@ -138,12 +178,12 @@ const styles = StyleSheet.create({
     },
     forgotPassword: {
         alignSelf: 'flex-end',
-        color: '#3B82F6',
+        color: AppColor.primary,
         marginBottom: 25,
         fontSize: 14,
     },
     loginButton: {
-        backgroundColor: '#3B82F6',
+        backgroundColor: AppColor.primary,
         borderRadius: 10,
         paddingVertical: 15,
         alignItems: 'center',
@@ -164,7 +204,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     registerNow: {
-        color: '#3B82F6',
+        color: AppColor.primary,
         fontSize: 14,
         fontWeight: '600',
     },

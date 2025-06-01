@@ -9,12 +9,11 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
 
-
     List<Issue> findByUser(User user);
-
 
     List<Issue> findByCategory(String category);
 
-
     List<Issue> findByStatus(String status);
+
+    List<Issue> findByUserId(Long userId);
 }

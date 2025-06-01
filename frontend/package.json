@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
+    "@stomp/stompjs": "^7.1.1",
     "expo-secure-store": "^14.2.3"
+  },
+  "devDependencies": {
+    "@types/stompjs": "^2.3.9"
   }
 }

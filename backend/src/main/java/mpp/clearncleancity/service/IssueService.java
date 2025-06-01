@@ -1,6 +1,5 @@
 package mpp.clearncleancity.service;
 
-
 import mpp.clearncleancity.model.entitites.User;
 import mpp.clearncleancity.model.entitites.Issue;
 import mpp.clearncleancity.repository.IssueRepository;
@@ -20,7 +19,6 @@ public class IssueService {
     @Autowired
     private UserRepository userRepository;
 
-
     public List<Issue> getAllIssues() {
         return issueRepository.findAll();
     }
@@ -33,10 +31,15 @@ public class IssueService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         issue.setUser(user);
-        return issueRepository.save(issue);
+        Issue savedIssue = issueRepository.save(issue);
+
+        return savedIssue;
     }
 
     public void deleteIssue(Long id) {
+        if (!issueRepository.existsById(id)) {
+            throw new RuntimeException("Issue not found");
+        }
         issueRepository.deleteById(id);
     }
 

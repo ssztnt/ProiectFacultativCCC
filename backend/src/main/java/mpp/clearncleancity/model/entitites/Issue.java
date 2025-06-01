@@ -5,6 +5,8 @@ import mpp.clearncleancity.model.enums.IssueCategory;
 import mpp.clearncleancity.model.enums.IssueStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "issue")
@@ -33,12 +35,22 @@ public class Issue {
     @Column(nullable = false)
     private IssueStatus status = IssueStatus.OPEN;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vote> votes = new ArrayList<>();
+
 
     public Issue() {}
 
@@ -124,5 +136,21 @@ public class Issue {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

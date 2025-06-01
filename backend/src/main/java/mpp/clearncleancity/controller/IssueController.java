@@ -2,7 +2,8 @@ package mpp.clearncleancity.controller;
 
 import mpp.clearncleancity.model.entitites.User;
 import mpp.clearncleancity.model.entitites.Issue;
-import mpp.clearncleancity.model.validators.IssueValidator;
+import mpp.clearncleancity.model.enums.IssueCategory;
+import mpp.clearncleancity.model.enums.IssueStatus;
 import mpp.clearncleancity.repository.IssueRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import org.slf4j.Logger;
@@ -11,7 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -26,7 +31,9 @@ public class IssueController {
     @Autowired
     private UserRepository userRepository;
 
-    // GET all issues
+    @Autowired
+    private WebSocketController webSocketController;
+
     @GetMapping
     public List<Issue> getAllIssues() {
         log.info("Fetching all issues");
@@ -34,44 +41,52 @@ public class IssueController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createIssue(@RequestBody Issue issue, Authentication authentication) {
-        log.info("Attempting to create a new issue with title: {}", issue.getTitle());
+    public ResponseEntity<?> createIssue(
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("category") String category,
+            @RequestParam("location") String location,
+            @RequestParam("latitude") double latitude,
+            @RequestParam("longitude") double longitude,
+            @RequestParam("image") MultipartFile image,
+            Authentication authentication
+    ) {
+        log.info("Creating issue with image for user: {}", authentication.getName());
 
-        // Validate the issue
-        IssueValidator issueValidator = new IssueValidator();
         try {
-            issueValidator.validate(issue);
-        } catch (IllegalArgumentException e) {
-            log.error("Validation failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Validation error: " + e.getMessage());
+            String filename = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            Path path = Paths.get("uploads", filename);
+            Files.createDirectories(path.getParent());
+            Files.write(path, image.getBytes());
+
+            String username = authentication.getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Issue issue = new Issue();
+            issue.setTitle(title);
+            issue.setDescription(description);
+            issue.setCategory(IssueCategory.valueOf(category));
+            issue.setLocation(location);
+            issue.setLatitude(latitude);
+            issue.setLongitude(longitude);
+            issue.setImageUrl("/uploads/" + filename);
+            issue.setUser(user);
+            issue.setStatus(IssueStatus.OPEN);
+
+            Issue savedIssue = issueRepository.save(issue);
+            log.info("Issue saved with ID {}", savedIssue.getId());
+
+            sendLiveUpdate();
+
+            return ResponseEntity.ok(savedIssue);
+
+        } catch (Exception e) {
+            log.error("Error creating issue", e);
+            return ResponseEntity.status(500).body("Failed to create issue");
         }
-
-        String username = authentication.getName();
-        log.debug("Authenticated user: {}", username);
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    log.error("User not found for username: {}", username);
-                    return new RuntimeException("User not found");
-                });
-
-        issue.setUser(user);
-        Issue savedIssue = issueRepository.save(issue);
-        log.info("Issue created successfully with ID: {}", savedIssue.getId());
-        return ResponseEntity.ok(savedIssue);
     }
 
-    // GET issue by ID
-    @GetMapping("/{id}")
-    public Issue getIssueById(@PathVariable Long id) {
-        log.info("Fetching issue with ID: {}", id);
-        return issueRepository.findById(id).orElseThrow(() -> {
-            log.error("Issue not found with ID: {}", id);
-            return new RuntimeException("Issue not found");
-        });
-    }
-
-    // PUT update issue
     @PutMapping("/{id}")
     public Issue updateIssue(@PathVariable Long id, @RequestBody Issue updatedIssue) {
         log.info("Updating issue with ID: {}", id);
@@ -87,18 +102,29 @@ public class IssueController {
         existing.setStatus(updatedIssue.getStatus());
         Issue savedIssue = issueRepository.save(existing);
         log.info("Issue updated successfully with ID: {}", savedIssue.getId());
+
+        sendLiveUpdate();
+
         return savedIssue;
     }
 
-    // DELETE issue
     @DeleteMapping("/{id}")
     public void deleteIssue(@PathVariable Long id) {
         log.info("Deleting issue with ID: {}", id);
-        if (!issueRepository.existsById(id)) {
+        Issue issue = issueRepository.findById(id).orElseThrow(() -> {
             log.error("Issue not found with ID: {}", id);
-            throw new RuntimeException("Issue not found");
-        }
+            return new RuntimeException("Issue not found");
+        });
+
         issueRepository.deleteById(id);
         log.info("Issue deleted successfully with ID: {}", id);
+
+        sendLiveUpdate();
+    }
+
+    private void sendLiveUpdate() {
+        List<Issue> allIssues = issueRepository.findAll();
+        log.info("Sending live update via WebSocket with {} issues", allIssues.size());
+        webSocketController.sendUpdate(allIssues);
     }
 }

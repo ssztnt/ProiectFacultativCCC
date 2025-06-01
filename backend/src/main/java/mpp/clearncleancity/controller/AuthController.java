@@ -1,6 +1,7 @@
 package mpp.clearncleancity.controller;
 
 import mpp.clearncleancity.model.entitites.User;
+import mpp.clearncleancity.model.enums.UserRole;
 import mpp.clearncleancity.model.validators.UserValidator;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.security.JwtUtil;
@@ -75,12 +76,10 @@ public class AuthController {
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         log.info("Trying to sign up user with username: {}", user.getUsername());
 
-        // Validate the user
         UserValidator userValidator = new UserValidator();
         try {
             userValidator.validate(user);
         } catch (IllegalArgumentException e) {
-            log.error("Validation failed: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation error: " + e.getMessage());
         }
 
@@ -90,6 +89,7 @@ public class AuthController {
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is already in use!");
         }
+
         User newUser = new User(
                 user.getUsername(),
                 user.getFirstname(),
@@ -97,8 +97,10 @@ public class AuthController {
                 encoder.encode(user.getPassword()),
                 user.getEmail()
         );
+        newUser.setRole(UserRole.USER);
+        newUser.setOrganType(user.getOrganType());
+
         userRepository.save(newUser);
-        log.info("User registered with id: {} and username: {}", user.getId(), user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 }
