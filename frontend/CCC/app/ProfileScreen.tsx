@@ -126,18 +126,10 @@ export default function ProfileScreen() {
                     <Text style={styles.settingText}>Notificări Push</Text>
                     <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
                 </View>
-                <View style={styles.settingRow}>
-                    <Text style={styles.settingText}>Mod întunecat (Dark Mode)</Text>
-                    <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
-                </View>
 
                 <Text style={styles.sectionTitle}>🔐 Securitate</Text>
                 <TouchableOpacity style={styles.optionRow} onPress={() => router.replace('/ResetRequestScreen')}>
                     <Text style={styles.optionText}>Schimbă parola</Text>
-                    <Ionicons name="chevron-forward" size={20} color="#888" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.optionRow}>
-                    <Text style={styles.optionText}>Schimbă emailul</Text>
                     <Ionicons name="chevron-forward" size={20} color="#888" />
                 </TouchableOpacity>
 

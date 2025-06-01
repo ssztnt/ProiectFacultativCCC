@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -16,6 +16,8 @@ interface Issue {
     status: string;
     imageUrl?: string;
     createdAt: string;
+    latitude: number;
+    longitude: number;
 }
 
 export default function HomeScreen() {
@@ -47,11 +49,26 @@ export default function HomeScreen() {
     }, []);
 
     const [region, setRegion] = useState<Region>({
-        latitude: 46.7712,
-        longitude: 23.6236,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
+        latitude: 46.77828448142628,
+        longitude: 23.628237046189795,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
     });
+
+    const memoizedMarkers = useMemo(() => issues.map(issue => (
+        <Marker
+            key={issue.id}
+            coordinate={{ latitude: issue.latitude, longitude: issue.longitude }}
+            title={issue.title}
+            description={issue.description}
+            pinColor={
+                issue.status === 'OPEN' ? 'red' :
+                    issue.status === 'IN_PROGRESS' ? 'yellow' :
+                        issue.status === 'RESOLVED' ? 'green' :
+                            'blue'
+            }
+        />
+    )), [issues]);
 
     const [expanded, setExpanded] = useState(false);
 
@@ -66,8 +83,8 @@ export default function HomeScreen() {
         setRegion({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
         });
     };
 
@@ -98,10 +115,12 @@ export default function HomeScreen() {
                 <TouchableOpacity style={styles.mapWrapper}>
                     <MapView
                         style={[styles.map, expanded && styles.mapExpanded]}
-                        region={region}
+                        initialRegion={region}
                     >
-                        <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
+                        {memoizedMarkers}
+                        <Marker pinColor={'blue'} coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
                     </MapView>
+
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={goToMyLocation} style={styles.locationBtn}>

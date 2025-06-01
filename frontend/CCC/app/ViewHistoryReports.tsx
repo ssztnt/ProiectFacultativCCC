@@ -20,7 +20,7 @@ import {router} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
 import AppLayout from '@/components/AppLayout';
 import {LinearGradient} from "expo-linear-gradient";
-import { IssueItem } from '@/components/IssueItem'; // Import componenta partajată
+import { IssueItem } from '@/components/IssueItem';
 import Colors from "@/app/organ/constants/Colors";
 
 interface Issue {
@@ -58,7 +58,6 @@ export default function ViewHistoryReports() {
                 setIssues(data);
                 setVisibleIssues(data.slice(0, PAGE_SIZE));
 
-                // Entrance animation
                 Animated.parallel([
                     Animated.timing(fadeAnim, {
                         toValue: 1,
