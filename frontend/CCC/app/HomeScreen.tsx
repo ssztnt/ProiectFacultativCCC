@@ -1,13 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
-import * as Location from 'expo-location';
-import AppColor from '@/constants/AppColor';
-import {router} from "expo-router";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import AppColor from '../constants/AppColor';
+import AppLayout from '../components/AppLayout';
+import MapView, {Marker, Region} from "react-native-maps";
+import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {IPaddress} from "@/constants/NetworkConfig";
+
+interface Issue {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    imageUrl?: string;
+    createdAt: string;
+}
 
 export default function HomeScreen() {
+    const [reportCount, setReportCount] = useState();
+    const [resolvedCount, setResolvedCount] = useState();
+
+    const [issues, setIssues] = useState<Issue[]>([]);
+
+    const fetchReports = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await fetch(`${IPaddress}/api/issues`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setIssues(data);
+                setReportCount(data.length);
+                setResolvedCount(data.filter((issue: Issue) => issue.status === 'RESOLVED').length);
+
+            }
+        } catch (err) {
+            console.error('Failed to fetch reports:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, []);
+
     const [region, setRegion] = useState<Region>({
-        latitude: 46.7712,         // Cluj-Napoca
+        latitude: 46.7712,
         longitude: 23.6236,
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
@@ -32,30 +72,113 @@ export default function HomeScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>🗺️ Cluj-Napoca Map</Text>
+        <AppLayout>
+            <ScrollView contentContainerStyle={styles.content}>
+                <Text style={styles.welcome}>Welcome back! 🌿</Text>
 
-            <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/MainMenuScreen')}>
-                <Text style={styles.backText}>← </Text>
-            </TouchableOpacity>
+                <View style={styles.statsCard}>
+                    <Text style={styles.statsTitle}>Community Stats</Text>
+                    <Text style={styles.statsText}>📌 {reportCount} issues reported</Text>
+                    <Text style={styles.statsText}>✅ {resolvedCount} issues resolved</Text>
+                </View>
 
-            <TouchableOpacity onPress={() => setExpanded(!expanded)} style={styles.mapWrapper}>
-                <MapView
-                    style={[styles.map, expanded && styles.mapExpanded]}
-                    region={region}
-                >
-                    <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
-                </MapView>
-            </TouchableOpacity>
+                <View style={styles.tipsCard}>
+                    <Text style={styles.tipTitle}>Did you know?</Text>
+                    <Text style={styles.tipText}>Reporting trash on time helps prevent air and soil pollution. 🌍</Text>
+                </View>
 
-            <TouchableOpacity onPress={goToMyLocation} style={styles.locationBtn}>
-                <Text style={styles.locationText}>📍 Locația mea</Text>
-            </TouchableOpacity>
-        </View>
+                <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/ReportIssueScreen')}>
+                    <Text style={styles.quickText}>🚨 Report a problem now</Text>
+                </TouchableOpacity>
+
+                <View style={{ height: 1, backgroundColor: '#ccc', marginVertical: 20 }} />
+
+                <Text style={styles.title}>🗺️ Cluj-Napoca Map</Text>
+
+                <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/HomeScreen')}>
+                    <Text style={styles.backText}>← </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.mapWrapper}>
+                    <MapView
+                        style={[styles.map, expanded && styles.mapExpanded]}
+                        region={region}
+                    >
+                        <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
+                    </MapView>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={goToMyLocation} style={styles.locationBtn}>
+                    <Text style={styles.locationText}>📍 Locația mea</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </AppLayout>
     );
 }
 
 const styles = StyleSheet.create({
+    content: {
+        paddingTop: 100,
+        paddingHorizontal: 16,
+        paddingBottom: 120, // Spațiu pentru footer
+    },
+    welcome: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: AppColor.primary,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    statsCard: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    statsTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#444',
+        marginBottom: 8,
+    },
+    statsText: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 4,
+    },
+    tipsCard: {
+        backgroundColor: '#DFF6E3',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 16,
+    },
+    tipTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#444',
+        marginBottom: 8,
+    },
+    tipText: {
+        fontSize: 14,
+        color: '#666',
+    },
+    quickAction: {
+        backgroundColor: '#FFD700',
+        padding: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    quickText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#444',
+    },
     container: {
         flex: 1,
         backgroundColor: AppColor.background,

@@ -27,7 +27,7 @@ export default function WelcomeScreen() {
 
         // Navigate after 3s
         const timeout = setTimeout(() => {
-            router.replace('/MainMenuScreen');
+            router.replace('/HomeScreen');
         }, 1500);
 
         return () => clearTimeout(timeout);

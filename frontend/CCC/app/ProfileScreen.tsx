@@ -16,6 +16,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { IPaddress } from '../constants/NetworkConfig';
+import AppLayout from "@/components/AppLayout";
 
 export default function ProfileScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -85,74 +86,76 @@ export default function ProfileScreen() {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#237F52" />
-            </TouchableOpacity>
-
-            <View style={styles.userCard}>
-                <TouchableOpacity onPress={() => setModalVisible(true)}>
-                    {user?.profilePictureUrl ? (
-                        <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
-                    ) : (
-                        <Ionicons name="person-circle-outline" size={80} color={AppColor.primary} />
-                    )}
+        <AppLayout>
+            <ScrollView contentContainerStyle={styles.container}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="#237F52" />
                 </TouchableOpacity>
-                <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}</Text>
-                <Text style={styles.userTag}>{user ? `@${user.username}` : '@username'}</Text>
-            </View>
 
-            <Text style={styles.sectionTitle}>⚙️ General</Text>
-            <View style={styles.settingRow}>
-                <Text style={styles.settingText}>Notificări Push</Text>
-                <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
-            </View>
-            <View style={styles.settingRow}>
-                <Text style={styles.settingText}>Mod întunecat (Dark Mode)</Text>
-                <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
-            </View>
-
-            <Text style={styles.sectionTitle}>🔐 Securitate</Text>
-            <TouchableOpacity style={styles.optionRow}>
-                <Text style={styles.optionText}>Schimbă parola</Text>
-                <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionRow}>
-                <Text style={styles.optionText}>Schimbă emailul</Text>
-                <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-
-            <Text style={styles.sectionTitle}>📄 Legal</Text>
-            <TouchableOpacity style={styles.optionRow}>
-                <Text style={styles.optionText}>Termeni și condiții</Text>
-                <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionRow}>
-                <Text style={styles.optionText}>Politica de confidențialitate</Text>
-                <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Ionicons name="log-out-outline" size={20} color="#fff" />
-                <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-
-            <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        {user?.profilePictureUrl && (
-                            <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
+                <View style={styles.userCard}>
+                    <TouchableOpacity onPress={() => setModalVisible(true)}>
+                        {user?.profilePictureUrl ? (
+                            <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
+                        ) : (
+                            <Ionicons name="person-circle-outline" size={80} color={AppColor.primary} />
                         )}
-                        <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
-                            <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
-                            <Text style={{ marginTop: 10, color: '#888' }}>Închide</Text>
-                        </TouchableOpacity>
-                    </View>
+                    </TouchableOpacity>
+                    <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}</Text>
+                    <Text style={styles.userTag}>{user ? `@${user.username}` : '@username'}</Text>
                 </View>
-            </Modal>
-        </ScrollView>
+
+                <Text style={styles.sectionTitle}>⚙️ General</Text>
+                <View style={styles.settingRow}>
+                    <Text style={styles.settingText}>Notificări Push</Text>
+                    <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
+                </View>
+                <View style={styles.settingRow}>
+                    <Text style={styles.settingText}>Mod întunecat (Dark Mode)</Text>
+                    <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
+                </View>
+
+                <Text style={styles.sectionTitle}>🔐 Securitate</Text>
+                <TouchableOpacity style={styles.optionRow}>
+                    <Text style={styles.optionText}>Schimbă parola</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionRow}>
+                    <Text style={styles.optionText}>Schimbă emailul</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+
+                <Text style={styles.sectionTitle}>📄 Legal</Text>
+                <TouchableOpacity style={styles.optionRow}>
+                    <Text style={styles.optionText}>Termeni și condiții</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionRow}>
+                    <Text style={styles.optionText}>Politica de confidențialitate</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={20} color="#fff" />
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+
+                <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            {user?.profilePictureUrl && (
+                                <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
+                            )}
+                            <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
+                                <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <Text style={{ marginTop: 10, color: '#888' }}>Închide</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </ScrollView>
+        </AppLayout>
     );
 }
 
