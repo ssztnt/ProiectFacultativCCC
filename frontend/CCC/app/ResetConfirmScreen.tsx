@@ -24,6 +24,10 @@ export default function ResetConfirmScreen() {
 
             if (response.ok) {
                 Alert.alert('Succes', 'Parola a fost resetată.');
+                await SecureStore.deleteItemAsync('reset_token');
+                await SecureStore.deleteItemAsync('token');
+                await SecureStore.deleteItemAsync('userData');
+
                 router.replace('/LoginScreen');
             } else {
                 const err = await response.text();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
     Alert, Image, KeyboardAvoidingView, Platform, FlatList
@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function ReportIssueScreen() {
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
+    const [description, setDescription] = useState("");
     const [category, setCategory] = useState(null);
     const [locationText, setLocationText] = useState('');
     const [image, setImage] = useState<{ uri: string } | null>(null);
@@ -35,16 +35,25 @@ export default function ReportIssueScreen() {
     const router = useRouter();
 
     const fetchLocation = async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permission denied', 'Location permission is required to attach coordinates.');
-            return;
-        }
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission denied', 'Location permission is required to submit a report.');
+                return null;
+            }
 
-        const loc = await Location.getCurrentPositionAsync({});
-        setLatitude(loc.coords.latitude);
-        setLongitude(loc.coords.longitude);
+            const loc = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
+            });
+
+            return loc.coords;
+        } catch (error) {
+            console.error('Location error:', error);
+            Alert.alert('Location Error', 'Could not get your location. Please try again.');
+            return null;
+        }
     };
+
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -60,14 +69,25 @@ export default function ReportIssueScreen() {
                 name: selected.fileName || 'photo.jpg',
                 type: selected.type || 'image/jpeg',
             } as any);
-
-            await fetchLocation(); // Atașează automat locația
         }
     };
 
     const handleSubmit = async () => {
-        if (!title || !description || !category || !locationText || !image || !latitude || !longitude) {
-            Alert.alert('Please fill all required fields.');
+        const coords = await fetchLocation();
+        if (!coords) return;
+
+        const { latitude, longitude } = coords;
+        setLatitude(latitude);
+        setLongitude(longitude);
+
+        if (!title) console.log('Missing title');
+        if (!category) console.log('Missing category');
+        if (!locationText) console.log('Missing locationText');
+        if (!latitude) console.log('Missing latitude');
+        if (!longitude) console.log('Missing longitude');
+
+        if (!title || !category || !locationText || !latitude || !longitude) {
+            Alert.alert('Please fill all required fieldsa.');
             return;
         }
 
@@ -79,16 +99,18 @@ export default function ReportIssueScreen() {
 
         const formData = new FormData();
         formData.append('title', title);
-        formData.append('description', description);
         formData.append('category', category);
         formData.append('location', locationText);
         formData.append('latitude', String(latitude));
         formData.append('longitude', String(longitude));
-        formData.append('image', {
-            uri: image.uri,
-            name: 'photo.jpg',
-            type: 'image/jpeg',
-        } as any);
+        formData.append('description', description || '');
+        if (image) {
+            formData.append('image', {
+                uri: image.uri,
+                name: 'photo.jpg',
+                type: 'image/jpeg',
+            } as any);
+        }
 
         try {
             const response = await fetch(`${IPaddress}/api/issues/create`, {
@@ -102,7 +124,7 @@ export default function ReportIssueScreen() {
             if (response.ok) {
                 Alert.alert('Success', 'Issue submitted successfully!');
                 setTitle('');
-                setDescription('');
+                setDescription("");
                 setCategory(null);
                 setLocationText('');
                 setImage(null);
@@ -126,7 +148,7 @@ export default function ReportIssueScreen() {
             <Text style={styles.label}>Title *</Text>
             <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
-            <Text style={styles.label}>Description *</Text>
+            <Text style={styles.label}>Description</Text>
             <TextInput style={[styles.input, { height: 80 }]} value={description} onChangeText={setDescription} multiline />
 
             <Text style={styles.label}>Category *</Text>
@@ -146,12 +168,13 @@ export default function ReportIssueScreen() {
             <Text style={styles.label}>Location *</Text>
             <TextInput style={styles.input} value={locationText} onChangeText={setLocationText} placeholder="Strada, cartier..." />
 
-            <Text style={styles.label}>Image *</Text>
+            <Text style={styles.label}>Image</Text>
             <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
                 <Text style={styles.imagePickerText}>Choose Image</Text>
             </TouchableOpacity>
             {image && <Image source={{ uri: image.uri }} style={styles.preview} />}
 
+            <Text style={styles.mandatoryInfo}>* are mandatory fields.</Text>
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                 <Text style={styles.submitButtonText}>Submit Report</Text>
             </TouchableOpacity>
@@ -162,24 +185,10 @@ export default function ReportIssueScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <TouchableOpacity onPress={() => router.replace('/HomeScreen')} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color={AppColor.primary} />
                     </TouchableOpacity>
                 </View>
-                <FlatList
-                    data={[{ key: 'form' }]}
-                    renderItem={renderForm}
-                    keyExtractor={(item) => item.key}
-                    contentContainerStyle={styles.container}
-                    keyboardShouldPersistTaps="handled"
-                />
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    );
-
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: AppColor.background }}>
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <FlatList
                     data={[{ key: 'form' }]}
                     renderItem={renderForm}
@@ -256,7 +265,7 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         backgroundColor: AppColor.primary,
-        marginTop: 30,
+        marginTop: 20,
         padding: 15,
         borderRadius: 12,
         alignItems: 'center',
@@ -274,5 +283,9 @@ const styles = StyleSheet.create({
     },
     backButton: {
         marginRight: 10,
+    },
+    mandatoryInfo: {
+        paddingTop: 10,
+        color: '#ff7d7d',
     }
 });

@@ -1,5 +1,5 @@
-// 📁 app/user/ViewHistoryReports.tsx
-import React, { useEffect, useState } from 'react';
+// 📁 app/user/ViewHistoryReports.tsx (actualizat)
+import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -10,24 +10,30 @@ import {
     Modal,
     Dimensions,
     ActivityIndicator,
-    ScrollView
+    ScrollView,
+    Animated
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IPaddress } from '@/constants/NetworkConfig';
 import AppColor from '@/constants/AppColor';
 import {router} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
-import AppLayout from '@/components/AppLayout'; // Import layout-ul
+import AppLayout from '@/components/AppLayout';
+import {LinearGradient} from "expo-linear-gradient";
+import { IssueItem } from '@/components/IssueItem';
+import Colors from "@/app/organ/constants/Colors";
 
 interface Issue {
     id: number;
     title: string;
     description: string;
     status: string;
+    location: string,
     imageUrl?: string;
     createdAt: string;
 }
 
+const colors = Colors;
 const PAGE_SIZE = 3;
 
 export default function ViewHistoryReports() {
@@ -35,7 +41,11 @@ export default function ViewHistoryReports() {
     const [visibleIssues, setVisibleIssues] = useState<Issue[]>([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(30)).current;
 
     const fetchReports = async () => {
         try {
@@ -47,6 +57,20 @@ export default function ViewHistoryReports() {
                 const data = await response.json();
                 setIssues(data);
                 setVisibleIssues(data.slice(0, PAGE_SIZE));
+
+                Animated.parallel([
+                    Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 800,
+                        useNativeDriver: true,
+                    }),
+                    Animated.spring(slideAnim, {
+                        toValue: 0,
+                        tension: 50,
+                        friction: 8,
+                        useNativeDriver: true,
+                    }),
+                ]).start();
             }
         } catch (err) {
             console.error('Failed to fetch reports:', err);
@@ -76,27 +100,24 @@ export default function ViewHistoryReports() {
         }
     };
 
-    const renderItem = ({ item }: { item: Issue }) => (
-        <TouchableOpacity style={styles.card} onPress={() => setSelectedIssue(item)}>
-            <View style={styles.cardHeader}>
-                <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                <Text style={styles.statusEmoji}>{getStatusEmoji(item.status)}</Text>
-            </View>
-            <Text numberOfLines={2} style={styles.description}>{item.description}</Text>
-            <View style={styles.cardFooter}>
-                <Text style={styles.status}>Status: {item.status}</Text>
-                <Text style={styles.date}>{new Date(item.createdAt).toLocaleDateString('ro-RO')}</Text>
-            </View>
-        </TouchableOpacity>
+    const openDetailModal = (issue: Issue) => {
+        setSelectedIssue(issue);
+        setModalVisible(true);
+    };
+
+    const renderIssueItem = ({ item, index }: { item: Issue, index: number }) => (
+        <IssueItem
+            item={item}
+            index={index}
+            onPress={openDetailModal}
+            fadeAnim={fadeAnim}
+            slideAnim={slideAnim}
+        />
     );
 
     return (
         <AppLayout>
             <ScrollView contentContainerStyle={styles.content}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={AppColor.primary} />
-                </TouchableOpacity>
-
                 <Text style={styles.header}>Istoricul Rapoartelor 📋</Text>
 
                 <View style={styles.statsCard}>
@@ -121,7 +142,7 @@ export default function ViewHistoryReports() {
                 ) : (
                     <FlatList
                         data={visibleIssues}
-                        renderItem={renderItem}
+                        renderItem={renderIssueItem}
                         keyExtractor={item => item.id.toString()}
                         onEndReached={loadMore}
                         onEndReachedThreshold={0.5}
@@ -130,18 +151,19 @@ export default function ViewHistoryReports() {
                 )}
             </ScrollView>
 
+            {/* Modal pentru detalii (păstrăm modalul original pentru detalii) */}
             <Modal
-                visible={selectedIssue !== null}
+                visible={modalVisible}
                 transparent
                 animationType="slide"
-                onRequestClose={() => setSelectedIssue(null)}
+                onRequestClose={() => setModalVisible(false)}
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <ScrollView showsVerticalScrollIndicator={false}>
                             <View style={styles.modalHeader}>
                                 <Text style={styles.modalTitle}>{selectedIssue?.title}</Text>
-                                <TouchableOpacity onPress={() => setSelectedIssue(null)}>
+                                <TouchableOpacity onPress={() => setModalVisible(false)}>
                                     <Ionicons name="close" size={24} color="#666" />
                                 </TouchableOpacity>
                             </View>
@@ -183,14 +205,7 @@ const styles = StyleSheet.create({
     content: {
         paddingTop: 100,
         paddingHorizontal: 16,
-        paddingBottom: 120, // Spațiu pentru footer
-    },
-    backButton: {
-        position: 'absolute',
-        top: 50,
-        left: 16,
-        padding: 10,
-        zIndex: 10,
+        paddingBottom: 120,
     },
     header: {
         fontSize: 24,
@@ -266,52 +281,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#444',
-    },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 3 },
-        shadowRadius: 6,
-        elevation: 4,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#444',
-        flex: 1,
-    },
-    statusEmoji: {
-        fontSize: 20,
-    },
-    description: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 12,
-        lineHeight: 20,
-    },
-    cardFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    status: {
-        fontSize: 12,
-        color: AppColor.primary,
-        fontWeight: '500',
-    },
-    date: {
-        fontSize: 12,
-        color: '#666',
     },
     modalOverlay: {
         flex: 1,

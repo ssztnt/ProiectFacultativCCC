@@ -21,12 +21,31 @@ import Colors from '../constants/Colors';
 
 const firefighterColors = Colors.firefighters;
 
+type LegalModalType = 'terms' | 'privacy';
 
 export default function PompieriSettingsScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isModalVisible, setModalVisible] = useState(false);
+
+    const [legalModalVisible, setLegalModalVisible] = useState(false);
+    const [legalModalType, setLegalModalType] = useState<LegalModalType | null>(null);
+
+    const openTerms = () => {
+        setLegalModalType('terms');
+        setLegalModalVisible(true);
+    };
+
+    const openPrivacy = () => {
+        setLegalModalType('privacy');
+        setLegalModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setLegalModalVisible(false);
+        setLegalModalType(null);
+    };
 
     useEffect(() => {
         const loadUser = async () => {
@@ -91,10 +110,6 @@ export default function PompieriSettingsScreen() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color="#237F52" />
-            </TouchableOpacity>
-
             <View style={styles.userCard}>
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     {user?.profilePictureUrl ? (
@@ -112,27 +127,20 @@ export default function PompieriSettingsScreen() {
                 <Text style={styles.settingText}>Notificări Push</Text>
                 <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
             </View>
-            <View style={styles.settingRow}>
-                <Text style={styles.settingText}>Mod întunecat (Dark Mode)</Text>
-                <Switch value={darkModeEnabled} onValueChange={setDarkModeEnabled} />
-            </View>
 
             <Text style={styles.sectionTitle}>🔐 Securitate</Text>
-            <TouchableOpacity style={styles.optionRow}>
+            <TouchableOpacity style={styles.optionRow} onPress={() => router.replace('/ResetRequestScreen')}>
                 <Text style={styles.optionText}>Schimbă parola</Text>
-                <Ionicons name="chevron-forward" size={20} color="#888" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionRow}>
-                <Text style={styles.optionText}>Schimbă emailul</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
             <Text style={styles.sectionTitle}>📄 Legal</Text>
-            <TouchableOpacity style={styles.optionRow}>
+            <TouchableOpacity style={styles.optionRow} onPress={openTerms}>
                 <Text style={styles.optionText}>Termeni și condiții</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionRow}>
+
+            <TouchableOpacity style={styles.optionRow} onPress={openPrivacy}>
                 <Text style={styles.optionText}>Politica de confidențialitate</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>

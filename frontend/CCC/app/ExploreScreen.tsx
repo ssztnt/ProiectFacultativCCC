@@ -166,20 +166,18 @@ export default function ExploreScreen() {
     return (
         <AppLayout>
             <ScrollView contentContainerStyle={styles.container}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#237F52" />
-                </TouchableOpacity>
-
                 <Text style={styles.header}>📰 Alege-ți sursa de știri din Cluj</Text>
-                {SOURCES.map((source, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.card}
-                        onPress={() => handleVisit(source.title, source.url)}
-                    >
-                        <Text style={styles.cardText}>{source.title}</Text>
-                    </TouchableOpacity>
-                ))}
+                <View style={styles.cardsContainer}>
+                    {SOURCES.map((source, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.card}
+                            onPress={() => handleVisit(source.title, source.url)}
+                        >
+                            <Text style={styles.cardText}>{source.title}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
 
                 {history.length > 0 && (
                     <View style={styles.historyBox}>
@@ -207,35 +205,42 @@ export default function ExploreScreen() {
 
 const styles = StyleSheet.create({
     container: {
+        paddingTop: 100,
         padding: 20,
         backgroundColor: AppColor.background,
         flexGrow: 1,
     },
     header: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: '700',
         color: AppColor.primary,
-        marginBottom: 25,
         textAlign: 'center',
+        marginBottom: 20,
+    },
+    cardsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
     },
     card: {
         backgroundColor: '#fff',
         borderRadius: 14,
         paddingVertical: 15,
-        paddingHorizontal: 30,
+        paddingHorizontal: 20,
         marginBottom: 15,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 6,
         elevation: 3,
-        width: '100%',
+        width: '48%', // Aproximativ jumătate din lățime
         alignItems: 'center',
     },
     cardText: {
         fontSize: 16,
         color: '#333',
         fontWeight: '500',
+        textAlign: 'center',
     },
     historyBox: {
         backgroundColor: '#eee',
