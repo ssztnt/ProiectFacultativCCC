@@ -25,4 +25,6 @@
 # Ignoră modulele npm
 node_modules/
 
-uploads
+/uploads
+/backend/uploads
+/frontend/CCC/constants/NetworkConfig.ts

@@ -48,10 +48,33 @@ export default function ExploreScreen() {
 
         const fetchIssues = async () => {
             try {
-                const response = await fetch(`${IPaddress}/api/issues`);
+                const token = await AsyncStorage.getItem('token');
+                if (!token) {
+                    console.warn('[fetchIssues] No token found');
+                    return;
+                }
+
+                const response = await fetch(`${IPaddress}/api/issues`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 if (response.ok) {
                     const data = await response.json();
-                    setIssues(data);
+
+                    // Verifică votul utilizatorului pentru fiecare issue
+                    const issuesWithVotes = await Promise.all(
+                        data.map(async (issue: any) => {
+                            const voteRes = await fetch(`${IPaddress}/api/votes/${issue.id}/user`, {
+                                headers: { Authorization: `Bearer ${token}` },
+                            });
+                            if (voteRes.ok) {
+                                const userVote = await voteRes.json();
+                                return { ...issue, userVote }; // Adaugă `userVote` la issue
+                            }
+                            return { ...issue, userVote: null };
+                        })
+                    );
+
+                    setIssues(issuesWithVotes);
                 } else {
                     console.error('Failed to fetch issues:', response.status);
                 }
@@ -62,28 +85,51 @@ export default function ExploreScreen() {
 
         initializeData();
 
-        // WebSocket connect: primește un issue actualizat și actualizează lista locală
-        connectWebSocket((updatedIssue: any) => {
-            setIssues(prevIssues => {
-                // Daca issue exista deja, actualizam doar voturile si alte detalii
-                const index = prevIssues.findIndex(issue => issue.id === updatedIssue.id);
-                if (index !== -1) {
-                    const newIssues = [...prevIssues];
-                    newIssues[index] = updatedIssue;
-                    return newIssues;
+        // WebSocket connect: handle issue and vote updates
+        connectWebSocket(
+            (updatedIssue: any) => {
+                if (updatedIssue.action === 'delete') {
+                    setIssues(prevIssues => prevIssues.filter(issue => issue.id !== updatedIssue.data.id));
+                } else {
+                    setIssues(prevIssues => {
+                        const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
+                        if (index !== -1) {
+                            const newIssues = [...prevIssues];
+                            newIssues[index] = updatedIssue.data;
+                            return newIssues;
+                        }
+                        return [...prevIssues, updatedIssue.data];
+                    });
                 }
-                // daca nu exista, il adaugam
-                return [...prevIssues, updatedIssue];
-            });
-        });
+            }
+        );
 
-        // WebSocket disconnect la demontare
+        // WebSocket disconnect on unmount
         return () => {
             disconnectWebSocket();
         };
     }, []);
 
-    // Functie pentru actualizarea voturilor când se votează în IssueCard
+    const fetchVotes = async (issueId: number) => {
+        if (!issueId) {
+            console.warn('[fetchVotes] Issue ID is undefined.');
+            return;
+        }
+        try {
+            const upRes = await fetch(`${IPaddress}/api/votes/upvotes/${issueId}`);
+            const downRes = await fetch(`${IPaddress}/api/votes/downvotes/${issueId}`);
+            if (upRes.ok && downRes.ok) {
+                const upVotes = await upRes.json();
+                const downVotes = await downRes.json();
+                console.log(`[fetchVotes] Fetched votes for issue ${issueId}:`, { upVotes, downVotes });
+            } else {
+                console.warn('[fetchVotes] Failed to fetch votes. upRes.ok=', upRes.ok, 'downRes.ok=', downRes.ok);
+            }
+        } catch (error) {
+            console.error('[fetchVotes] Error fetching votes:', error);
+        }
+    };
+
     const handleVoteUpdate = (
         id: string,
         newUpVotes: number,
