@@ -63,20 +63,20 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
     const getStatusConfig = (status: string) => {
         const normalizedStatus = status.toLowerCase().trim();
 
-        if (normalizedStatus.includes('resolved') || normalizedStatus.includes('rezolvat')) {
+        if (normalizedStatus.includes('resolved')) {
             return {
                 colors: ['#4CAF50', '#66BB6A'] as const,
                 textColor: '#FFFFFF',
                 icon: '✅',
-                label: 'REZOLVAT',
+                label: 'RESOLVED',
                 borderColor: '#4CAF50'
             };
-        } else if (normalizedStatus.includes('progress') || normalizedStatus.includes('progres')) {
+        } else if (normalizedStatus.includes('progress')) {
             return {
                 colors: ['#FF9800', '#FFB74D'] as const,
                 textColor: '#FFFFFF',
                 icon: '🔄',
-                label: 'ÎN PROGRES',
+                label: 'IN PROGRESS',
                 borderColor: '#FF9800'
             };
         } else {
@@ -84,7 +84,7 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
                 colors: ['#F44336', '#EF5350'] as const,
                 textColor: '#FFFFFF',
                 icon: '🚨',
-                label: 'DESCHIS',
+                label: 'OPEN',
                 borderColor: '#F44336'
             };
         }
@@ -124,20 +124,39 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
     };
 
     const updateVoteState = (type: 'UPVOTE' | 'DOWNVOTE') => {
-        const isSameVote = userVote === type;
+        // daca apasa upvote
+        if (type === 'UPVOTE') {
+            if (userVote === 'UPVOTE') {
+                setUpVotes(upVotes - 1);
+                setUserVote(null);
+            } else {
+                if (userVote === 'DOWNVOTE') {
+                    setDownVotes(downVotes - 1);
+                }
+                setUpVotes(upVotes + 1);
+                setUserVote('UPVOTE');
+            }
+        // daca apasa downvote
+        } else if (type === 'DOWNVOTE') {
+            if (userVote === 'DOWNVOTE') {
+                setDownVotes(downVotes - 1);
+                setUserVote(null);
+            } else {
+                if (userVote === 'UPVOTE') {
+                    setUpVotes(upVotes - 1);
+                }
+                setDownVotes(downVotes + 1);
+                setUserVote('DOWNVOTE');
+            }
+        }
 
-        const newUpVotes = type === 'UPVOTE'
-            ? isSameVote ? upVotes - 1 : upVotes + 1 + (userVote === 'DOWNVOTE' ? -1 : 0)
-            : upVotes - (userVote === 'UPVOTE' ? 1 : 0);
-
-        const newDownVotes = type === 'DOWNVOTE'
-            ? isSameVote ? downVotes - 1 : downVotes + 1 + (userVote === 'UPVOTE' ? -1 : 0)
-            : downVotes - (userVote === 'DOWNVOTE' ? 1 : 0);
-
-        setUpVotes(Math.max(newUpVotes, 0));
-        setDownVotes(Math.max(newDownVotes, 0));
-        setUserVote(isSameVote ? null : type);
-        onVote?.(issue.id, Math.max(newUpVotes, 0), Math.max(newDownVotes, 0), isSameVote ? null : type);
+        // Notify parent about the change
+        onVote?.(
+            issue.id,
+            Math.max(upVotes, 0),
+            Math.max(downVotes, 0),
+            userVote === type ? null : type
+        );
     };
 
     const handleVote = async (direction: 'up' | 'down') => {

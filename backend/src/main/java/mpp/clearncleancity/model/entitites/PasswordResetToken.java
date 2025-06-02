@@ -20,7 +20,6 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private LocalDateTime expiration;
 
-    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

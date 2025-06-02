@@ -30,7 +30,7 @@ export default function ExploreScreen() {
     const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
 
-    const [sortBy, setSortBy] = useState<'upvotes' | 'status'>('upvotes'); // State to track sorting method
+    const [sortBy, setSortBy] = useState<'upvotes' | 'status'>('upvotes');
 
     useEffect(() => {
         const initializeData = async () => {
@@ -73,12 +73,21 @@ export default function ExploreScreen() {
 
                     const issuesWithVotes = await Promise.all(
                         data.map(async (issue: any) => {
-                            const voteRes = await fetch(`${IPaddress}/api/votes/${issue.id}/user`, {
+                            const voteRes = await fetch(`${IPaddress}/api/votes/${issue.id}/my-vote`, {
                                 headers: { Authorization: `Bearer ${token}` },
                             });
+                            console.log(`Fetching vote for issue ${issue.id}: ${voteRes.status}`);
                             if (voteRes.ok) {
-                                const userVote = await voteRes.json();
-                                return { ...issue, userVote };
+                                const responseText = await voteRes.text();
+                                if (responseText === "No vote found") {
+                                    return { ...issue, userVote: null };
+                                } else {
+                                    const isUpvote = responseText === 'true';
+                                    return {
+                                        ...issue,
+                                        userVote: isUpvote ? 'UPVOTE' : 'DOWNVOTE'
+                                    };
+                                }
                             }
                             return { ...issue, userVote: null };
                         })
@@ -290,7 +299,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 8,
         alignSelf: 'flex-end',
-        marginTop: 16, // Increased space above the button
+        marginTop: 16,
     },
     sortButtonText: {
         color: '#fff',
