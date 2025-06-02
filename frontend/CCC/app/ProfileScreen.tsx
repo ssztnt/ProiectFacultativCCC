@@ -76,11 +76,11 @@ export default function ProfileScreen() {
             } as any);
 
             try {
-                const response = await fetch(`${IPaddress}/api/users/profile-pictures`, {
+                const response = await fetch(`${IPaddress}/api/users/profile-picture`, {
                     method: 'PUT',
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data',
+
                     },
                     body: formData,
                 });

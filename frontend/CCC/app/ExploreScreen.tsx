@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Linking,
+    Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppColor from '../constants/AppColor';
@@ -15,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { connectWebSocket, disconnectWebSocket } from '../services/WebSocket';
 import {IPaddress} from "@/constants/NetworkConfig";
 import AppLayout from "@/components/AppLayout";
+import { Image,} from 'react-native';
 
 const SOURCES = [
     { title: 'Cluj24', url: 'https://cluj24.ro' },
@@ -26,6 +28,10 @@ const SOURCES = [
 export default function ExploreScreen() {
     const [history, setHistory] = useState<string[]>([]);
     const [issues, setIssues] = useState<any[]>([]);
+    const [imageModalVisible, setImageModalVisible] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+
+
 
     useEffect(() => {
         const initializeData = async () => {
@@ -192,10 +198,32 @@ export default function ExploreScreen() {
                             key={issue.id}
                             issue={issue}
                             onVote={handleVoteUpdate}
+                            onPressImage={(imageUrl) => {
+                                setSelectedImageUrl(imageUrl);
+                                setImageModalVisible(true);
+                            }}
                         />
                     ))}
                 </View>
             </ScrollView>
+            <Modal
+                visible={imageModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setImageModalVisible(false)}
+            >
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPressOut={() => setImageModalVisible(false)}
+                >
+                    <View style={styles.modalContent}>
+                        {selectedImageUrl && (
+                            <Image source={{ uri: selectedImageUrl }} style={styles.fullImage} />
+                        )}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </AppLayout>
     );
 }
@@ -278,5 +306,24 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginBottom: 8,
         color: '#444',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 10,
+        maxHeight: '90%',
+        maxWidth: '90%',
+    },
+    fullImage: {
+        width: 300,
+        height: 300,
+        resizeMode: 'contain',
+        borderRadius: 10,
     },
 });

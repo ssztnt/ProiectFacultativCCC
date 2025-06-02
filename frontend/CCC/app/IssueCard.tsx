@@ -5,6 +5,7 @@ import { IPaddress } from '@/constants/NetworkConfig';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
 
+
 interface IssueCardProps {
     issue: {
         id: string;
@@ -23,9 +24,10 @@ interface IssueCardProps {
         downVotes: number,
         userVote: 'UPVOTE' | 'DOWNVOTE' | null
     ) => void;
+    onPressImage?: (imageUrl: string) => void;
 }
 
-export default function IssueCard({ issue, onVote }: IssueCardProps) {
+export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProps) {
     const baseUrl = IPaddress;
     const [upVotes, setUpVotes] = useState(0);
     const [downVotes, setDownVotes] = useState(0);
@@ -179,10 +181,12 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
             {/* Image */}
             {issue.imageUrl && (
                 <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: `${IPaddress}/uploads/issue-pictures/${issue.imageUrl}` }}
-                        style={styles.image}
-                    />
+                    <TouchableOpacity onPress={() => onPressImage?.(`${IPaddress}/uploads/issue-pictures/${issue.imageUrl}`)}>
+                        <Image
+                            source={{ uri: `${IPaddress}/uploads/issue-pictures/${issue.imageUrl}` }}
+                            style={styles.image}
+                        />
+                    </TouchableOpacity>
                     <LinearGradient
                         colors={['transparent', 'rgba(0,0,0,0.3)'] as const}
                         style={styles.imageOverlay}

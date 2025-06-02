@@ -24,7 +24,6 @@ export default function LoginForm() {
     const [password, setPassword] = useState('');
     const router = useRouter();
     const shakeRef = useRef<any>(null);
-    const confettiRef = useRef(null);
     const [showConfetti, setShowConfetti] = useState(false);
 
     const handleLogin = async () => {
@@ -62,10 +61,16 @@ export default function LoginForm() {
                             router.replace('/organ/pompieri/PompieriScreen');
                         } else {
                             console.warn('OrganType unknown:', user.organType);
-                            router.replace('/WelcomeScreen');
+                            router.replace({
+                                pathname: '/WelcomeScreen',
+                                params: { username: user.username },
+                            });
                         }
                     } else {
-                        router.replace('/WelcomeScreen');
+                        router.replace({
+                            pathname: '/WelcomeScreen',
+                            params: { username: user.username },
+                        });
                     }
                 }, 1500);
             } else {

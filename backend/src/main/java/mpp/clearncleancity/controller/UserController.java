@@ -21,9 +21,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    @Value("${app.base-url}")
-    private String baseUrl;
-
     @Autowired
     private UserRepository userRepository;
 

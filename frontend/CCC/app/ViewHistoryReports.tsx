@@ -42,6 +42,8 @@ export default function ViewHistoryReports() {
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+    const [user, setUser] = useState<any>(null);
+
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
@@ -77,6 +79,16 @@ export default function ViewHistoryReports() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const loadUser = async () => {
+            const stored = await AsyncStorage.getItem('userData');
+            if (stored) {
+                setUser(JSON.parse(stored));
+            }
+        };
+        loadUser();
+    }, []);
 
     useEffect(() => {
         fetchReports();
@@ -146,11 +158,18 @@ export default function ViewHistoryReports() {
                         <Text style={styles.statsText}>🎯 Follow your progress right here!</Text>
                     </View>
 
-                    <View style={{ flex: 3, alignItems: 'center' }}>
+                    <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
                         <Image
-                            source={{ uri: `${IPaddress}/uploads/1748467973325_photo.jpg` }}
-                            style={{ width: 60, height: 60, borderRadius: 30, marginBottom: 8 }}
+                            source={
+                                user?.profilePictureUrl
+                                    ? { uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }
+                                    : undefined
+                            }
+                            style={{ width: 60, height: 60, borderRadius: 30, marginBottom: 4, backgroundColor: '#ccc' }}
                         />
+                        <Text style={styles.statsText}>
+                            {user?.firstname ?? 'User'}
+                        </Text>
                         <Text style={styles.statsText}>{userPoints} Points</Text>
                     </View>
                 </View>
