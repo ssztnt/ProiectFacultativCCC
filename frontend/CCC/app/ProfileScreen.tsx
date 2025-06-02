@@ -15,7 +15,7 @@ import AppColor from '../constants/AppColor';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { IPaddress } from '../constants/NetworkConfig';
+import { IPaddress } from '@/constants/NetworkConfig';
 import LegalModal from '../components/LegalModal'
 import AppLayout from "@/components/AppLayout";
 
@@ -41,7 +41,6 @@ export default function ProfileScreen() {
     };
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isModalVisible, setModalVisible] = useState(false);
 

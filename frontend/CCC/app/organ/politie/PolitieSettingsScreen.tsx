@@ -1,17 +1,15 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Animated,
     Alert,
     Switch,
     ScrollView,
     Image,
     Modal
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import * as ImagePicker from "expo-image-picker";
@@ -26,7 +24,6 @@ type LegalModalType = 'terms' | 'privacy';
 
 export default function PolitieSettingsScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isModalVisible, setModalVisible] = useState(false);
 

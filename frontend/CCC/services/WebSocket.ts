@@ -1,6 +1,6 @@
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
-import { IPaddress } from '../constants/NetworkConfig';
+import { IPaddress } from '@/constants/NetworkConfig';
 
 let stompClient: Client | null = null;
 
