@@ -113,14 +113,11 @@ export default function AdminIssuesScreen() {
     return (
 
         <View style={{ flex: 1, backgroundColor: AppColor.background }}>
-            {/* Header */}
-
             <View style={localStyles.header}>
                 <Text style={localStyles.headerTitle}>📋 View all reports</Text>
                 <Text style={localStyles.headerSubtitle}>Full incident list reported by users</Text>
             </View>
 
-            {/* Issue List */}
             <FlatList
                 data={issues}
                 keyExtractor={item => item.id.toString()}
@@ -128,7 +125,6 @@ export default function AdminIssuesScreen() {
                 contentContainerStyle={{ padding: 16 }}
             />
 
-            {/* Status Modal */}
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View style={localStyles.modalOverlay}>
                     <Animated.View style={[localStyles.modalContainer, { transform: [{ scale: modalScaleAnim }] }]}>
@@ -155,7 +151,6 @@ export default function AdminIssuesScreen() {
                 </View>
             </Modal>
 
-            {/* Image Modal */}
             <Modal visible={imageModalVisible} transparent animationType="fade">
                 <TouchableOpacity style={localStyles.imageOverlay} onPress={() => setImageModalVisible(false)}>
                     {selectedImage && (
