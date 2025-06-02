@@ -11,11 +11,11 @@ export default function SplashScreen() {
             <View style={styles.content}>
 
                     <Image
-                        source={require('../assets/images/logocircular.png')} // your Earth image path
+                        source={require('../assets/images/logocircular.png')}
                         style={{
                             width: 150,
                             height: 150,
-                            borderRadius: 60, // Half of width/height = perfect circle
+                            borderRadius: 60,
                             resizeMode: 'cover',
                         }}
                     />
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingHorizontal: 20,
         fontStyle: 'italic',
-        marginTop: 50, // ~3 cm depending on screen DPI
+        marginTop: 50,
     },
     getStartedButton: {
         backgroundColor: '#237F52',

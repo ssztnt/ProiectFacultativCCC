@@ -75,7 +75,7 @@ export default function HomeScreen() {
     const goToMyLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            alert('Permisiunea pentru locație a fost refuzată.');
+            alert('Location permission refused.');
             return;
         }
 
@@ -120,11 +120,10 @@ export default function HomeScreen() {
                         {memoizedMarkers}
                         <Marker pinColor={'blue'} coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
                     </MapView>
-
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={goToMyLocation} style={styles.locationBtn}>
-                    <Text style={styles.locationText}>📍 Locația mea</Text>
+                    <Text style={styles.locationText}>📍 My Location</Text>
                 </TouchableOpacity>
             </ScrollView>
         </AppLayout>
@@ -135,7 +134,7 @@ const styles = StyleSheet.create({
     content: {
         paddingTop: 100,
         paddingHorizontal: 16,
-        paddingBottom: 120, // Spațiu pentru footer
+        paddingBottom: 120,
     },
     welcome: {
         fontSize: 24,

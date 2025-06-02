@@ -66,7 +66,6 @@ export default function SalubritateIssuesScreen() {
                 const data = await response.json();
                 setIssues(data);
 
-                // Entrance animation
                 Animated.parallel([
                     Animated.timing(fadeAnim, {
                         toValue: 1,
@@ -121,7 +120,6 @@ export default function SalubritateIssuesScreen() {
         setNewStatus(issue.status);
         setModalVisible(true);
 
-        // Modal entrance animation
         Animated.spring(modalScaleAnim, {
             toValue: 1,
             tension: 100,

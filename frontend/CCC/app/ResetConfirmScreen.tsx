@@ -1,4 +1,3 @@
-// app/ResetConfirmScreen.tsx
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
@@ -10,10 +9,10 @@ export default function ResetConfirmScreen() {
     const router = useRouter();
 
     const handleConfirmReset = async () => {
-        if (!password) return Alert.alert('Completează noua parolă.');
+        if (!password) return Alert.alert('Type new password.');
 
         const token = await SecureStore.getItemAsync('reset_token');
-        if (!token) return Alert.alert('Token lipsă. Reîncearcă procesul.');
+        if (!token) return Alert.alert('Token missing. Retry the process.');
 
         try {
             const response = await fetch(`${IPaddress}/api/password-reset/confirm`, {
@@ -23,7 +22,7 @@ export default function ResetConfirmScreen() {
             });
 
             if (response.ok) {
-                Alert.alert('Succes', 'Parola a fost resetată.');
+                Alert.alert('Success', 'Password was reset.');
                 await SecureStore.deleteItemAsync('reset_token');
                 await SecureStore.deleteItemAsync('token');
                 await SecureStore.deleteItemAsync('userData');
@@ -31,18 +30,18 @@ export default function ResetConfirmScreen() {
                 router.replace('/LoginScreen');
             } else {
                 const err = await response.text();
-                Alert.alert('Eroare', err || 'Token invalid.');
+                Alert.alert('Error', err || 'Token invalid.');
             }
         } catch (err) {
-            Alert.alert('Eroare', 'Nu s-a putut conecta la server.');
+            Alert.alert('Error', 'Failed to connect to server.');
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Confirmare Resetare</Text>
+            <Text style={styles.title}>Confirm reset</Text>
             <TextInput
-                placeholder="Noua parolă"
+                placeholder="New Password"
                 secureTextEntry
                 placeholderTextColor="#999"
                 style={styles.input}
@@ -50,7 +49,7 @@ export default function ResetConfirmScreen() {
                 value={password}
             />
             <TouchableOpacity style={styles.button} onPress={handleConfirmReset}>
-                <Text style={styles.buttonText}>Resetează parola</Text>
+                <Text style={styles.buttonText}>Reset Password</Text>
             </TouchableOpacity>
         </View>
     );

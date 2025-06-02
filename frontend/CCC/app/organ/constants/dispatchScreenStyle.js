@@ -12,15 +12,15 @@ export const styles = StyleSheet.create({
         marginBottom: 30,
     },
     title: {
-        fontSize: 28,
+        fontSize: 20,
         fontWeight: '800',
         color: '#2c3e50',
         textAlign: 'center',
-        marginBottom: 40,
+        marginBottom: 5,
         paddingTop: 40,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: 12,
         color: '#7f8c8d',
         fontWeight: '500',
     },
@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
         flex: 1,
     },
     teamWrapper: {
-        marginBottom: 20,
+        marginBottom: 10,
     },
     teamTouchable: {
         borderRadius: 20,
@@ -62,16 +62,16 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     teamIcon: {
-        fontSize: 32,
+        fontSize: 25,
         marginRight: 12,
     },
     teamName: {
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: '700',
         marginBottom: 2,
     },
     teamCode: {
-        fontSize: 14,
+        fontSize: 10,
         fontWeight: '600',
     },
     statusBadge: {
@@ -88,7 +88,7 @@ export const styles = StyleSheet.create({
         marginBottom: 20,
     },
     sectionLabel: {
-        fontSize: 14,
+        fontSize: 10,
         fontWeight: '600',
         marginBottom: 12,
         textTransform: 'uppercase',
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
         marginBottom: 8,
     },
     memberName: {
-        fontSize: 14,
+        fontSize: 10,
         fontWeight: '500',
     },
     detailsSection: {
@@ -118,12 +118,12 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     detailIcon: {
-        fontSize: 16,
+        fontSize: 12,
         marginRight: 12,
         width: 20,
     },
     detailText: {
-        fontSize: 15,
+        fontSize: 10,
         fontWeight: '500',
         flex: 1,
     },
@@ -141,7 +141,7 @@ export const styles = StyleSheet.create({
     },
     deployButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 12,
         fontWeight: '700',
         letterSpacing: 1,
     },

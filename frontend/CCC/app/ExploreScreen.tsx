@@ -60,7 +60,6 @@ export default function ExploreScreen() {
                 if (response.ok) {
                     const data = await response.json();
 
-                    // Verifică votul utilizatorului pentru fiecare issue
                     const issuesWithVotes = await Promise.all(
                         data.map(async (issue: any) => {
                             const voteRes = await fetch(`${IPaddress}/api/votes/${issue.id}/user`, {
@@ -85,7 +84,6 @@ export default function ExploreScreen() {
 
         initializeData();
 
-        // WebSocket connect: handle issue and vote updates
         connectWebSocket(
             (updatedIssue: any) => {
                 if (updatedIssue.action === 'delete') {
@@ -104,7 +102,6 @@ export default function ExploreScreen() {
             }
         );
 
-        // WebSocket disconnect on unmount
         return () => {
             disconnectWebSocket();
         };
@@ -166,7 +163,7 @@ export default function ExploreScreen() {
     return (
         <AppLayout>
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.header}>📰 Alege-ți sursa de știri din Cluj</Text>
+                <Text style={styles.header}>📰 Pick your media source from</Text>
                 <View style={styles.cardsContainer}>
                     {SOURCES.map((source, index) => (
                         <TouchableOpacity
@@ -181,7 +178,7 @@ export default function ExploreScreen() {
 
                 {history.length > 0 && (
                     <View style={styles.historyBox}>
-                        <Text style={styles.historyTitle}>🕓 Istoric Accesări</Text>
+                        <Text style={styles.historyTitle}>🕓 Access History</Text>
                         {history.map((item, i) => (
                             <Text key={i} style={styles.historyItem}>• {item}</Text>
                         ))}

@@ -61,7 +61,7 @@ export default function LoginForm() {
                         } else if (user.organType === 'POMPIERI') {
                             router.replace('/organ/pompieri/PompieriScreen');
                         } else {
-                            console.warn('OrganType necunoscut:', user.organType);
+                            console.warn('OrganType unknown:', user.organType);
                             router.replace('/WelcomeScreen');
                         }
                     } else {
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     },
     welcome: {
         fontSize: 22,
-        fontWeight: 'bold',       // schimbă stilul
-        fontStyle: 'italic',      // opțional: adaugă italic
+        fontWeight: 'bold',
+        fontStyle: 'italic',
         color: '#111',
         marginBottom: 30,
         textAlign: 'center',

@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
     },
     welcome: {
         fontSize: 22,
-        fontWeight: 'bold',       // schimbă stilul
-        fontStyle: 'italic',      // opțional: adaugă italic
+        fontWeight: 'bold',
+        fontStyle: 'italic',
         color: '#111',
         marginBottom: 30,
         textAlign: 'center',

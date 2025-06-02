@@ -105,7 +105,7 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
     const voteApiCall = async (type: 'UPVOTE' | 'DOWNVOTE') => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
-            Alert.alert('Eroare', 'Nu ești autentificat.');
+            Alert.alert('Error', 'You are not authenticated.');
             return null;
         }
 
@@ -148,11 +148,11 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
             if (result.success) {
                 updateVoteState(type);
             } else {
-                Alert.alert('Eroare', 'Nu s-a putut trimite votul.');
+                Alert.alert('Error', 'Unable to send vote.');
             }
         } catch (error) {
             console.error('[handleVote] Error:', error);
-            Alert.alert('Eroare', 'A apărut o eroare la votare.');
+            Alert.alert('Error', 'Error on voting.');
         }
     };
 
