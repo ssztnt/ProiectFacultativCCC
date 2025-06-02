@@ -65,7 +65,6 @@ public class Issue {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters & Setters
     public Long getId() {
         return id;
     }

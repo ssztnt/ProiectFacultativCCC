@@ -31,17 +31,13 @@ interface Issue {
     imageUrl?: string;
     createdAt: string;
 }
-const PAGE_SIZE = 3;
 
 export default function ViewHistoryReports() {
     const [issues, setIssues] = useState<Issue[]>([]);
-    const [visibleIssues, setVisibleIssues] = useState<Issue[]>([]);
-    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
     const [user, setUser] = useState<any>(null);
-
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
@@ -55,7 +51,6 @@ export default function ViewHistoryReports() {
             if (response.ok) {
                 const data = await response.json();
                 setIssues(data);
-                setVisibleIssues(data.slice(0, PAGE_SIZE));
 
                 Animated.parallel([
                     Animated.timing(fadeAnim, {
@@ -94,20 +89,16 @@ export default function ViewHistoryReports() {
         const handleWebSocketUpdate = (updatedIssue: any) => {
             setIssues(prevIssues => {
                 if (updatedIssue.action === 'delete') {
-                    const filtered = prevIssues.filter(issue => issue.id !== updatedIssue.data.id);
-                    setVisibleIssues(filtered.slice(0, page * PAGE_SIZE)); // actualizează paginat
-                    return filtered;
+                    return prevIssues.filter(issue => issue.id !== updatedIssue.data.id);
                 } else {
                     const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
-                    let newIssues;
                     if (index !== -1) {
-                        newIssues = [...prevIssues];
+                        const newIssues = [...prevIssues];
                         newIssues[index] = updatedIssue.data;
+                        return newIssues;
                     } else {
-                        newIssues = [updatedIssue.data, ...prevIssues]; // sau push la final, depinde ce vrei
+                        return [updatedIssue.data, ...prevIssues];
                     }
-                    setVisibleIssues(newIssues.slice(0, page * PAGE_SIZE)); // actualizează paginat
-                    return newIssues;
                 }
             });
         };
@@ -117,9 +108,7 @@ export default function ViewHistoryReports() {
         return () => {
             disconnectWebSocket();
         };
-    }, [page]); // Observă că am pus page în deps pentru că folosim page când actualizăm visibleIssues
-
-
+    }, []);
 
     const [userPoints, setUserPoints] = useState(0);
     const computePoints = (issues: Issue[]) => {
@@ -134,16 +123,6 @@ export default function ViewHistoryReports() {
             setUserPoints(computePoints(issues));
         }
     }, [issues]);
-
-    const loadMore = () => {
-        const nextPage = page + 1;
-        const start = (nextPage - 1) * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        setVisibleIssues(prev => [...prev, ...issues.slice(start, end)]);
-        setPage(nextPage);
-    };
-
-
 
     const getStatusEmoji = (status: string) => {
         switch (status.toLowerCase()) {
@@ -202,7 +181,7 @@ export default function ViewHistoryReports() {
                         <ActivityIndicator size="large" color={AppColor.primary} />
                         <Text style={styles.loadingText}>Reports loading... 🔄</Text>
                     </View>
-                ) : visibleIssues.length === 0 ? (
+                ) : issues.length === 0 ? (
                     <View style={styles.emptyCard}>
                         <Text style={styles.emptyTitle}>No reports found 🤷‍♂️</Text>
                         <Text style={styles.emptyText}>No reports sent. Start right now to help the community!</Text>
@@ -212,12 +191,9 @@ export default function ViewHistoryReports() {
                     </View>
                 ) : (
                     <FlatList
-                        data={visibleIssues}
+                        data={issues}
                         renderItem={renderIssueItem}
                         keyExtractor={item => item.id.toString()}
-                        onEndReached={loadMore}
-                        onEndReachedThreshold={0.5}
-                        scrollEnabled={false}
                     />
                 )}
             </ScrollView>

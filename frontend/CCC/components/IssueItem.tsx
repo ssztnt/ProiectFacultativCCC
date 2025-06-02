@@ -39,7 +39,7 @@ const statusConfig = {
         color: colors.in_progress.status,
         gradient: colors.in_progress.gradient,
         icon: '🚔',
-        label: 'IN-PROGRESS',
+        label: 'IN PROGRESS',
     },
     RESOLVED: {
         color: colors.resolved.status,
