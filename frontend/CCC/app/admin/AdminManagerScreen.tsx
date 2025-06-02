@@ -94,8 +94,12 @@ export default function AdminManagerScreen() {
                         <Text style={styles.username}>@{item.username}</Text>
                     </View>
                     <Image
-                        source={{ uri: `${IPaddress}/uploads/profile-pictures/${item.profilePictureUrl}` }}
-                        style={styles.avatar}
+                        source={
+                            item.profilePictureUrl
+                                ? { uri: `${IPaddress}/uploads/profile-pictures/${item.profilePictureUrl}` }
+                                : require('@/assets/images/default-profile-picture.jpg') // sau calea corectă relativă
+                        }
+                        style={styles.profileImage}
                     />
                 </View>
                 <View style={styles.detailRow}>
@@ -244,4 +248,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#e74c3c',
         borderRadius: 10,
     },
+    profileImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#ccc',
+    },
+
 });

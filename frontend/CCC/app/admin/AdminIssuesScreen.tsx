@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { IPaddress } from "@/constants/NetworkConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppColor from '@/constants/AppColor';
+import {connectWebSocket, disconnectWebSocket} from "@/services/WebSocket";
 
 const { width, height } = Dimensions.get('window');
 
@@ -62,6 +63,29 @@ export default function AdminIssuesScreen() {
 
     useEffect(() => {
         fetchIssues();
+
+        connectWebSocket(
+            (updatedIssue: any) => {
+                if (updatedIssue.action === 'delete') {
+                    setIssues(prevIssues => prevIssues.filter(issue => issue.id !== updatedIssue.data.id));
+                } else {
+                    setIssues(prevIssues => {
+                        const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
+                        if (index !== -1) {
+                            const newIssues = [...prevIssues];
+                            newIssues[index] = updatedIssue.data;
+                            return newIssues;
+                        }
+                        return [...prevIssues, updatedIssue.data];
+                    });
+                }
+            }
+        );
+
+        // WebSocket disconnect on unmount
+        return () => {
+            disconnectWebSocket();
+        };
     }, []);
 
     const updateStatus = async () => {
@@ -91,24 +115,40 @@ export default function AdminIssuesScreen() {
         }).start();
     };
 
-    const renderItem = ({ item }: { item: Issue }) => (
-        <TouchableOpacity style={localStyles.card} onPress={() => openStatusModal(item)}>
-            <Text style={localStyles.title}>{item.title}</Text>
-            <Text style={localStyles.description}>{item.description}</Text>
-            <Text style={localStyles.meta}>Status: {item.status}</Text>
-            {item.imageUrl && (
-                <TouchableOpacity onPress={() => {
-                    setSelectedImage(item.imageUrl);
-                    setImageModalVisible(true);
-                }}>
-                    <Image
-                        source={{ uri: `${IPaddress}/uploads/issue-pictures/${item.imageUrl}` }}
-                        style={localStyles.image}
-                    />
-                </TouchableOpacity>
-            )}
-        </TouchableOpacity>
-    );
+    const renderItem = ({ item }: { item: Issue }) => {
+        const status = statusConfig[item.status as keyof typeof statusConfig];
+
+        return (
+            <TouchableOpacity style={localStyles.card} onPress={() => openStatusModal(item)}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={localStyles.title}>{item.title}</Text>
+                    <View style={[localStyles.statusBadge, { backgroundColor: status.color }]}>
+                        <Text style={localStyles.statusBadgeText}>{status.label}</Text>
+                    </View>
+                </View>
+
+                <Text style={localStyles.description}>{item.description}</Text>
+
+                <Text style={localStyles.meta}>📍 {item.location}</Text>
+                <Text style={localStyles.meta}>🕒 {new Date(item.createdAt).toLocaleString()}</Text>
+
+                {item.imageUrl && (
+                    <TouchableOpacity
+                        style={{ marginTop: 10 }}
+                        onPress={() => {
+                            setSelectedImage(item.imageUrl);
+                            setImageModalVisible(true);
+                        }}
+                    >
+                        <Image
+                            source={{ uri: `${IPaddress}/uploads/issue-pictures/${item.imageUrl}` }}
+                            style={localStyles.image}
+                        />
+                    </TouchableOpacity>
+                )}
+            </TouchableOpacity>
+        );
+    };
 
     return (
 
@@ -243,7 +283,7 @@ const localStyles = StyleSheet.create({
     header: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 70, // ⬅️ schimbă de la 40 la 70 sau chiar 80 dacă ai notch mare
+        marginTop: 70,
         marginBottom: 20,
         paddingHorizontal: 16,
     },
@@ -261,4 +301,15 @@ const localStyles = StyleSheet.create({
         marginTop: 4,
         textAlign: 'center',
     },
+    statusBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    statusBadgeText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 12,
+    },
+
 });
