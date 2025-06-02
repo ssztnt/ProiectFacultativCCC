@@ -52,10 +52,8 @@ public class AuthController {
             User fullUser = userRepository.findByUsername(user.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Ascunde parola în răspuns
             fullUser.setPassword(null);
 
-            // Creează structura de răspuns
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", fullUser);
@@ -80,13 +78,16 @@ public class AuthController {
         try {
             userValidator.validate(user);
         } catch (IllegalArgumentException e) {
+            log.warn("Validation failed for user: {} - {}", user.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Validation error: " + e.getMessage());
         }
 
         if (userRepository.existsByUsername(user.getUsername())) {
+            log.warn("Username already taken: {}", user.getUsername());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken!");
         }
         if (userRepository.existsByEmail(user.getEmail())) {
+            log.warn("Email already in use: {}", user.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is already in use!");
         }
 
@@ -101,6 +102,7 @@ public class AuthController {
         newUser.setOrganType(user.getOrganType());
 
         userRepository.save(newUser);
+        log.info("User registered successfully with username: {}", user.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 }
