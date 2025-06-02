@@ -50,3 +50,4 @@
 | **Auth**       | JWT-based, Spring Security                     |
 | **UI**         | Linear Gradient, Ionicons, Custom Cards        |
 
+git
