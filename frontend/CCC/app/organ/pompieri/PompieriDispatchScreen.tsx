@@ -30,7 +30,6 @@ export default function PompieriDispatchScreen() {
     const slideAnim = useRef(new Animated.Value(50)).current;
 
     useEffect(() => {
-        // Initial entrance animation
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,

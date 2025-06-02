@@ -87,7 +87,7 @@ export default function ReportIssueScreen() {
         if (!longitude) console.log('Missing longitude');
 
         if (!title || !category || !locationText || !latitude || !longitude) {
-            Alert.alert('Please fill all required fieldsa.');
+            Alert.alert('Please fill all required fields.');
             return;
         }
 

@@ -1,4 +1,3 @@
-// 📁 app/user/ViewHistoryReports.tsx (actualizat)
 import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
@@ -19,9 +18,9 @@ import AppColor from '@/constants/AppColor';
 import {router} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
 import AppLayout from '@/components/AppLayout';
-import {LinearGradient} from "expo-linear-gradient";
 import { IssueItem } from '@/components/IssueItem';
 import Colors from "@/app/organ/constants/Colors";
+import { ResolvedIssueValue, OpenIssueValue } from "@/constants/Constants";
 
 interface Issue {
     id: number;
@@ -83,6 +82,24 @@ export default function ViewHistoryReports() {
         fetchReports();
     }, []);
 
+    const [userPoints, setUserPoints] = useState(0);
+    const computePoints = (issues: Issue[]) => {
+        return issues.reduce(
+            (sum, i) => sum + (i.status === 'RESOLVED' ? ResolvedIssueValue : OpenIssueValue),
+            0
+        );
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, []);
+
+    useEffect(() => {
+        if (issues.length > 0) {
+            setUserPoints(computePoints(issues));
+        }
+    }, [issues]);
+
     const loadMore = () => {
         const nextPage = page + 1;
         const start = (nextPage - 1) * PAGE_SIZE;
@@ -90,6 +107,8 @@ export default function ViewHistoryReports() {
         setVisibleIssues(prev => [...prev, ...issues.slice(start, end)]);
         setPage(nextPage);
     };
+
+
 
     const getStatusEmoji = (status: string) => {
         switch (status.toLowerCase()) {
@@ -118,25 +137,35 @@ export default function ViewHistoryReports() {
     return (
         <AppLayout>
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.header}>Istoricul Rapoartelor 📋</Text>
+                <Text style={styles.header}>Personal Reports History 📋</Text>
 
                 <View style={styles.statsCard}>
-                    <Text style={styles.statsTitle}>Rapoartele Tale</Text>
-                    <Text style={styles.statsText}>📊 {issues.length} rapoarte trimise</Text>
-                    <Text style={styles.statsText}>🎯 Urmărește progresul problemelor raportate</Text>
+                    <View style={{ flex: 7 }}>
+                        <Text style={styles.statsTitle}>Your reports</Text>
+                        <Text style={styles.statsText}>📊 {issues.length} reports sent</Text>
+                        <Text style={styles.statsText}>🎯 Follow your progress right here!</Text>
+                    </View>
+
+                    <View style={{ flex: 3, alignItems: 'center' }}>
+                        <Image
+                            source={{ uri: `${IPaddress}/uploads/1748467973325_photo.jpg` }}
+                            style={{ width: 60, height: 60, borderRadius: 30, marginBottom: 8 }}
+                        />
+                        <Text style={styles.statsText}>{userPoints} Points</Text>
+                    </View>
                 </View>
 
                 {loading ? (
                     <View style={styles.loadingCard}>
                         <ActivityIndicator size="large" color={AppColor.primary} />
-                        <Text style={styles.loadingText}>Se încarcă rapoartele... 🔄</Text>
+                        <Text style={styles.loadingText}>Reports loading... 🔄</Text>
                     </View>
                 ) : visibleIssues.length === 0 ? (
                     <View style={styles.emptyCard}>
-                        <Text style={styles.emptyTitle}>Niciun raport găsit 🤷‍♂️</Text>
-                        <Text style={styles.emptyText}>Nu aveți încă rapoarte trimise. Începeți să raportați probleme din comunitate!</Text>
+                        <Text style={styles.emptyTitle}>No reports found 🤷‍♂️</Text>
+                        <Text style={styles.emptyText}>No reports sent. Start right now to help the community!</Text>
                         <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/ReportIssueScreen')}>
-                            <Text style={styles.quickText}>🚨 Raportează o problemă acum</Text>
+                            <Text style={styles.quickText}>🚨 Report a problem right now</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -151,7 +180,7 @@ export default function ViewHistoryReports() {
                 )}
             </ScrollView>
 
-            {/* Modal pentru detalii (păstrăm modalul original pentru detalii) */}
+
             <Modal
                 visible={modalVisible}
                 transparent
@@ -182,13 +211,13 @@ export default function ViewHistoryReports() {
                             )}
 
                             <View style={styles.modalDescCard}>
-                                <Text style={styles.modalDescTitle}>Descriere:</Text>
+                                <Text style={styles.modalDescTitle}>Description:</Text>
                                 <Text style={styles.modalDescription}>{selectedIssue?.description}</Text>
                             </View>
 
                             <View style={styles.modalDateCard}>
                                 <Text style={styles.modalDate}>
-                                    📅 Creat la: {new Date(selectedIssue?.createdAt || '').toLocaleDateString('ro-RO')}
+                                    📅 Created at: {new Date(selectedIssue?.createdAt || '').toLocaleDateString('ro-RO')}
                                 </Text>
                             </View>
                         </ScrollView>
@@ -224,6 +253,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowRadius: 6,
         elevation: 4,
+        flexDirection: 'row',
     },
     statsTitle: {
         fontSize: 18,

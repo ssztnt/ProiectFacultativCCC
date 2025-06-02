@@ -109,7 +109,7 @@ export default function PompieriDispatchScreen() {
     const goToMyLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            alert('Permisiunea pentru locație a fost refuzată.');
+            alert('Permission for location denied.');
             return;
         }
 
@@ -317,7 +317,7 @@ export default function PompieriDispatchScreen() {
                     </MapView>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={goToMyLocation} style={mapStyle.locationBtn}>
-                    <Text style={mapStyle.locationText}>📍 Locația mea</Text>
+                    <Text style={mapStyle.locationText}>📍 My location</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>

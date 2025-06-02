@@ -93,13 +93,13 @@ export default function PolitieSettingsScreen() {
                     const updatedUser = { ...user, profilePictureUrl: newImageUrl };
                     setUser(updatedUser);
                     await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
-                    Alert.alert('Succes', 'Poza de profil a fost actualizată!');
+                    Alert.alert('Success', 'Profile picture updated!');
                     setModalVisible(false);
                 } else {
-                    Alert.alert('Eroare', 'Nu s-a putut actualiza poza.');
+                    Alert.alert('Error', 'Failed to update profile picture.');
                 }
             } catch (err) {
-                Alert.alert('Eroare', 'Upload eșuat.');
+                Alert.alert('Error', 'Upload failed.');
             }
         }
     };
@@ -119,30 +119,30 @@ export default function PolitieSettingsScreen() {
                         <Ionicons name="person-circle-outline" size={80} color={policeColors.primary} />
                     )}
                 </TouchableOpacity>
-                <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Nume Prenume'}</Text>
+                <Text style={styles.userName}>{user ? `${user.firstname} ${user.lastname}` : 'Name Firstname'}</Text>
                 <Text style={styles.userTag}>{user ? `@${user.username}` : '@username'}</Text>
             </View>
 
             <Text style={styles.sectionTitle}>⚙️ General</Text>
             <View style={styles.settingRow}>
-                <Text style={styles.settingText}>Notificări Push</Text>
+                <Text style={styles.settingText}>Push Notifications</Text>
                 <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} />
             </View>
 
-            <Text style={styles.sectionTitle}>🔐 Securitate</Text>
+            <Text style={styles.sectionTitle}>🔐 Security</Text>
             <TouchableOpacity style={styles.optionRow} onPress={() => router.replace('/ResetRequestScreen')}>
-                <Text style={styles.optionText}>Schimbă parola</Text>
+                <Text style={styles.optionText}>Change password</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
             <Text style={styles.sectionTitle}>📄 Legal</Text>
             <TouchableOpacity style={styles.optionRow} onPress={openTerms}>
-                <Text style={styles.optionText}>Termeni și condiții</Text>
+                <Text style={styles.optionText}>Terms and conditions</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.optionRow} onPress={openPrivacy}>
-                <Text style={styles.optionText}>Politica de confidențialitate</Text>
+                <Text style={styles.optionText}>Privacy Policy</Text>
                 <Ionicons name="chevron-forward" size={20} color="#888" />
             </TouchableOpacity>
 
@@ -166,10 +166,10 @@ export default function PolitieSettingsScreen() {
                             <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
                         )}
                         <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
-                            <Text style={styles.changeBtnText}>Schimbă poza de profil</Text>
+                            <Text style={styles.changeBtnText}>Change profile picture</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setModalVisible(false)}>
-                            <Text style={{ marginTop: 10, color: '#888' }}>Închide</Text>
+                            <Text style={{ marginTop: 10, color: '#888' }}>Close</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

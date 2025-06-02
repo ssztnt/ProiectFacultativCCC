@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Text, StyleSheet, Image } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, {
     FadeIn,
@@ -11,7 +11,6 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppColor from '../constants/AppColor';
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
@@ -22,10 +21,8 @@ export default function WelcomeScreen() {
     const scale = useSharedValue(1);
 
     useEffect(() => {
-        // Start pulsing
         scale.value = withRepeat(withTiming(1.05, { duration: 800 }), -1, true);
 
-        // Navigate after 3s
         const timeout = setTimeout(() => {
             router.replace('/HomeScreen');
         }, 1500);
@@ -50,7 +47,7 @@ export default function WelcomeScreen() {
                 entering={FadeIn.duration(800)}
                 exiting={FadeOut.duration(800)}
             >
-                Bine ai venit, {username} 🌱
+                Welcome buddy, {username} 🌱
             </AnimatedText>
         </LinearGradient>
     );
@@ -65,7 +62,7 @@ const styles = StyleSheet.create({
         paddingVertical: 40,
     },
     logo: {
-        width: 120, // puțin mai mare pentru vizibilitate
+        width: 120,
         height: 120,
         borderRadius: 60,
         marginBottom: 20,
@@ -75,6 +72,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#237F52',
         textAlign: 'center',
-        maxWidth: '90%', // evită overflow pe device-uri mici
+        maxWidth: '90%',
     },
 });

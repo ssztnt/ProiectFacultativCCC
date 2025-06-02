@@ -1,4 +1,3 @@
-// app/ResetRequestScreen.tsx
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
@@ -11,7 +10,7 @@ export default function ResetRequestScreen() {
     const router = useRouter();
 
     const handleResetRequest = async () => {
-        if (!email) return Alert.alert('Completează emailul.');
+        if (!email) return Alert.alert('Type email.');
 
         try {
             const response = await fetch(`${IPaddress}/api/password-reset/request`, {
@@ -27,16 +26,16 @@ export default function ResetRequestScreen() {
                 await SecureStore.setItemAsync('reset_token', token);
                 router.replace('/ResetConfirmScreen');
             } else {
-                Alert.alert('Eroare', resultText || 'Email inexistent.');
+                Alert.alert('Error', resultText || 'Email not found.');
             }
         } catch (error) {
-            Alert.alert('Eroare', 'Serverul nu răspunde.');
+            Alert.alert('Error', 'Server not responding.');
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Resetare Parolă</Text>
+            <Text style={styles.title}>Reset password</Text>
             <TextInput
                 placeholder="Email"
                 placeholderTextColor="#999"
@@ -46,7 +45,7 @@ export default function ResetRequestScreen() {
                 keyboardType="email-address"
             />
             <TouchableOpacity style={styles.button} onPress={handleResetRequest}>
-                <Text style={styles.buttonText}>Trimite codul</Text>
+                <Text style={styles.buttonText}>Next step</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.replace('/ProfileScreen')} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color="#237F52" />
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 50,           // ajustează în funcție de status bar
+        top: 50,
         left: 20,
         padding: 10,
         zIndex: 10,
