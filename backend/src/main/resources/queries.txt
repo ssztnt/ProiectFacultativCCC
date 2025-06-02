@@ -56,3 +56,5 @@ CREATE TABLE votes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE
 );
+
+npm install lottie-react-native --legacy-peer-deps
