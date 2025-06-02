@@ -130,7 +130,7 @@ export default function SalubritateSettingsScreen() {
             <View style={styles.userCard}>
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     {user?.profilePictureUrl ? (
-                        <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
+                        <Image source={{ uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }} style={styles.avatar} />
                     ) : (
                         <Ionicons name="person-circle-outline" size={80} color={sanitationColors.primary} />
                     )}
@@ -171,7 +171,7 @@ export default function SalubritateSettingsScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         {user?.profilePictureUrl && (
-                            <Image source={{ uri: user.profilePictureUrl }} style={styles.fullImage} resizeMode="cover" />
+                            <Image source={{ uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }} style={styles.fullImage} resizeMode="cover" />
                         )}
                         <TouchableOpacity onPress={handleImagePick} style={styles.changeBtn}>
                             <Text style={styles.changeBtnText}>Change profile picture</Text>
