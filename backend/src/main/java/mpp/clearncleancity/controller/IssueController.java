@@ -222,6 +222,11 @@ public class IssueController {
         });
     }
 
+    @GetMapping("/sorted-by-upvotes")
+    public List<Issue> getIssuesSortedByUpvotes() {
+        return issueRepository.findAllSortedByUpvotes();
+    }
+
     private void sendLiveUpdate(Issue issue, String action) {
         log.info("Sending live update via WebSocket for action: {}", action);
         webSocketController.sendIssueUpdate(issue, action);

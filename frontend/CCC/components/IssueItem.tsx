@@ -6,6 +6,7 @@ import { styles } from '@/app/organ/constants/issuesScreenStyle';
 import { Ionicons } from '@expo/vector-icons';
 import { IPaddress } from '@/constants/NetworkConfig';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from 'react-native';
 
 interface Issue {
     id: number;
@@ -61,9 +62,7 @@ export const IssueItem: React.FC<IssueItemProps> = ({
     const [userVote, setUserVote] = useState<'UPVOTE' | 'DOWNVOTE' | null>(null);
     const baseUrl = IPaddress;
 
-    useEffect(() => {
-    }, [item.id]);
-
+    useEffect(() => {}, [item.id]);
 
     return (
         <Animated.View
@@ -109,6 +108,13 @@ export const IssueItem: React.FC<IssueItemProps> = ({
                             <Text style={styles.statusBadgeText}>{config.label}</Text>
                         </LinearGradient>
                     </View>
+
+                    {item.imageUrl && (
+                        <Image
+                            source={{ uri: `${baseUrl}/uploads/issue-pictures/${item.imageUrl}` }}
+                            style={styles.issueImage}
+                        />
+                    )}
 
                     <View style={styles.locationRow}>
                         <Text style={styles.locationIcon}>📍</Text>

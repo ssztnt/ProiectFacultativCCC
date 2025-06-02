@@ -101,10 +101,28 @@ export default function ProfileScreen() {
         }
     };
 
-    const handleLogout = async () => {
-        await AsyncStorage.clear();
-        router.replace('/LoginScreen');
+    const handleLogout = () => {
+        Alert.alert(
+            'Are you sure?',
+            '',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes',
+                    style: 'destructive',
+                    onPress: async () => {
+                        await AsyncStorage.clear();
+                        router.replace('/LoginScreen');
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
+
 
     return (
         <AppLayout>

@@ -270,4 +270,12 @@ export const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#fff',
     },
+
+    issueImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 20,
+        marginBottom: 12,
+        resizeMode: 'cover',
+    },
 });

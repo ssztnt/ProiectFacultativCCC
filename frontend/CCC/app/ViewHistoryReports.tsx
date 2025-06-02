@@ -1,4 +1,3 @@
-// 📁 app/user/ViewHistoryReports.tsx (actualizat)
 import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
@@ -19,7 +18,6 @@ import AppColor from '@/constants/AppColor';
 import {router} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
 import AppLayout from '@/components/AppLayout';
-import {LinearGradient} from "expo-linear-gradient";
 import { IssueItem } from '@/components/IssueItem';
 import Colors from "@/app/organ/constants/Colors";
 
@@ -176,7 +174,7 @@ export default function ViewHistoryReports() {
 
                             {selectedIssue?.imageUrl && (
                                 <Image
-                                    source={{ uri: selectedIssue.imageUrl }}
+                                    source={{ uri: `${IPaddress}/uploads/issue-pictures/${selectedIssue.imageUrl}` }}
                                     style={styles.modalImage}
                                 />
                             )}

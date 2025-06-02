@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-na
 import { Ionicons } from '@expo/vector-icons';
 import { IPaddress } from '@/constants/NetworkConfig';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface IssueCardProps {
     issue: {
@@ -14,6 +15,7 @@ interface IssueCardProps {
         location: string;
         imageUrl: string;
         userVote?: 'UPVOTE' | 'DOWNVOTE' | null;
+        createdAt?: string;
     };
     onVote?: (
         id: string,
@@ -55,6 +57,48 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
 
         fetchVotes();
     }, [issue.id]);
+
+    const getStatusConfig = (status: string) => {
+        const normalizedStatus = status.toLowerCase().trim();
+
+        if (normalizedStatus.includes('resolved') || normalizedStatus.includes('rezolvat')) {
+            return {
+                colors: ['#4CAF50', '#66BB6A'] as const,
+                textColor: '#FFFFFF',
+                icon: '✅',
+                label: 'REZOLVAT',
+                borderColor: '#4CAF50'
+            };
+        } else if (normalizedStatus.includes('progress') || normalizedStatus.includes('progres')) {
+            return {
+                colors: ['#FF9800', '#FFB74D'] as const,
+                textColor: '#FFFFFF',
+                icon: '🔄',
+                label: 'ÎN PROGRES',
+                borderColor: '#FF9800'
+            };
+        } else {
+            return {
+                colors: ['#F44336', '#EF5350'] as const,
+                textColor: '#FFFFFF',
+                icon: '🚨',
+                label: 'DESCHIS',
+                borderColor: '#F44336'
+            };
+        }
+    };
+
+    const getCategoryIcon = (category: string) => {
+        const cat = category.toLowerCase();
+        if (cat.includes('strada') || cat.includes('drum')) return '🛣️';
+        if (cat.includes('gunoi') || cat.includes('deșeu')) return '🗑️';
+        if (cat.includes('parc') || cat.includes('verde')) return '🌳';
+        if (cat.includes('iluminat') || cat.includes('lumină')) return '💡';
+        if (cat.includes('apă') || cat.includes('canalizare')) return '💧';
+        return '📋';
+    };
+
+    const statusConfig = getStatusConfig(issue.status);
 
     console.log(`[IssueCard] Constructed image URL: ${IPaddress}/uploads/issue-pictures/${issue.imageUrl}`);
 
@@ -113,34 +157,117 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
     };
 
     return (
-        <View style={styles.card}>
-            {issue.imageUrl && (
-                <Image source={{ uri: `${IPaddress}/uploads/issue-pictures/${issue.imageUrl}` }} style={styles.image} />
-            )}
-            <View style={styles.details}>
-                <Text style={styles.title}>{issue.title}</Text>
-                <Text style={styles.description}>{issue.description}</Text>
-                <Text style={styles.info}>Category: {issue.category}</Text>
-                <Text style={styles.info}>Status: {issue.status}</Text>
-                <Text style={styles.info}>Location: {issue.location}</Text>
+        <View style={[styles.card, { borderLeftColor: statusConfig.borderColor }]}>
+            {/* Status Badge */}
+            <View style={styles.statusContainer}>
+                <LinearGradient
+                    colors={statusConfig.colors}
+                    style={styles.statusBadge}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                >
+                    <Text style={[styles.statusIcon, { color: statusConfig.textColor }]}>
+                        {statusConfig.icon}
+                    </Text>
+                    <Text style={[styles.statusText, { color: statusConfig.textColor }]}>
+                        {statusConfig.label}
+                    </Text>
+                </LinearGradient>
+                <Text style={styles.issueId}>#{issue.id}</Text>
+            </View>
 
-                <View style={styles.voteRow}>
-                    <TouchableOpacity onPress={() => handleVote('up')} style={styles.voteButton}>
-                        <Ionicons
-                            name={userVote === 'UPVOTE' ? "thumbs-up" : "thumbs-up-outline"}
-                            size={20}
-                            color="#237F52"
-                        />
-                        <Text style={styles.voteText}>{upVotes}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleVote('down')} style={styles.voteButton}>
-                        <Ionicons
-                            name={userVote === 'DOWNVOTE' ? "thumbs-down" : "thumbs-down-outline"}
-                            size={20}
-                            color="#B00020"
-                        />
-                        <Text style={styles.voteText}>{downVotes}</Text>
-                    </TouchableOpacity>
+            {/* Image */}
+            {issue.imageUrl && (
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: `${IPaddress}/uploads/issue-pictures/${issue.imageUrl}` }}
+                        style={styles.image}
+                    />
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.3)'] as const}
+                        style={styles.imageOverlay}
+                    />
+                </View>
+            )}
+
+            {/* Content */}
+            <View style={styles.content}>
+                <Text style={styles.title} numberOfLines={2}>{issue.title}</Text>
+                <Text style={styles.description} numberOfLines={3}>{issue.description}</Text>
+
+                {/* Category & Location */}
+                <View style={styles.infoRow}>
+                    <View style={styles.infoItem}>
+                        <Text style={styles.infoIcon}>{getCategoryIcon(issue.category)}</Text>
+                        <Text style={styles.infoText}>{issue.category}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.infoRow}>
+                    <View style={styles.infoItem}>
+                        <Text style={styles.infoIcon}>📍</Text>
+                        <Text style={styles.infoText} numberOfLines={1}>{issue.location}</Text>
+                    </View>
+                </View>
+
+                {/* Date */}
+                {issue.createdAt && (
+                    <View style={styles.dateRow}>
+                        <Text style={styles.dateText}>
+                            🕒 {new Date(issue.createdAt).toLocaleDateString('ro-RO', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                        </Text>
+                    </View>
+                )}
+
+                {/* Vote Section */}
+                <View style={styles.voteSection}>
+                    <View style={styles.voteRow}>
+                        <TouchableOpacity
+                            onPress={() => handleVote('up')}
+                            style={[
+                                styles.voteButton,
+                                userVote === 'UPVOTE' && styles.voteButtonActive
+                            ]}
+                        >
+                            <Ionicons
+                                name={userVote === 'UPVOTE' ? "thumbs-up" : "thumbs-up-outline"}
+                                size={20}
+                                color={userVote === 'UPVOTE' ? "#FFFFFF" : "#4CAF50"}
+                            />
+                            <Text style={[
+                                styles.voteText,
+                                userVote === 'UPVOTE' && styles.voteTextActive
+                            ]}>
+                                {upVotes}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => handleVote('down')}
+                            style={[
+                                styles.voteButton,
+                                userVote === 'DOWNVOTE' && styles.voteButtonActiveDown
+                            ]}
+                        >
+                            <Ionicons
+                                name={userVote === 'DOWNVOTE' ? "thumbs-down" : "thumbs-down-outline"}
+                                size={20}
+                                color={userVote === 'DOWNVOTE' ? "#FFFFFF" : "#F44336"}
+                            />
+                            <Text style={[
+                                styles.voteText,
+                                userVote === 'DOWNVOTE' && styles.voteTextActive
+                            ]}>
+                                {downVotes}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </View>
@@ -149,57 +276,157 @@ export default function IssueCard({ issue, onVote }: IssueCardProps) {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
         marginBottom: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 12,
+        elevation: 5,
+        borderLeftWidth: 4,
+        overflow: 'hidden',
+    },
+    statusContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        paddingBottom: 12,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        elevation: 3,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    statusIcon: {
+        fontSize: 14,
+        marginRight: 6,
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+    issueId: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6B7280',
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    imageContainer: {
+        position: 'relative',
+        marginHorizontal: 16,
+        marginBottom: 16,
+        borderRadius: 12,
+        overflow: 'hidden',
     },
     image: {
         width: '100%',
         height: 200,
-        borderRadius: 8,
-        marginBottom: 10,
+        resizeMode: 'cover',
     },
-    details: {
-        paddingHorizontal: 5,
+    imageOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 50,
+    },
+    content: {
+        paddingHorizontal: 16,
+        paddingBottom: 16,
     },
     title: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '700',
-        color: '#333',
-        marginBottom: 5,
+        color: '#1F2937',
+        marginBottom: 8,
+        lineHeight: 26,
     },
     description: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 5,
+        fontSize: 15,
+        color: '#4B5563',
+        lineHeight: 22,
+        marginBottom: 16,
     },
-    info: {
+    infoRow: {
+        marginBottom: 8,
+    },
+    infoItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    infoIcon: {
+        fontSize: 16,
+        marginRight: 8,
+        width: 20,
+    },
+    infoText: {
         fontSize: 14,
-        color: '#444',
-        marginBottom: 5,
+        color: '#6B7280',
+        fontWeight: '500',
+        flex: 1,
+    },
+    dateRow: {
+        marginTop: 8,
+        marginBottom: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+    },
+    dateText: {
+        fontSize: 12,
+        color: '#9CA3AF',
+        fontWeight: '500',
+    },
+    voteSection: {
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        paddingTop: 16,
     },
     voteRow: {
         flexDirection: 'row',
-        marginTop: 10,
-        gap: 20,
+        justifyContent: 'space-around',
+        alignItems: 'center',
     },
     voteButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        backgroundColor: '#F9FAFB',
+        borderRadius: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        minWidth: 80,
+        justifyContent: 'center',
+    },
+    voteButtonActive: {
+        backgroundColor: '#4CAF50',
+        borderColor: '#4CAF50',
+    },
+    voteButtonActiveDown: {
+        backgroundColor: '#F44336',
+        borderColor: '#F44336',
     },
     voteText: {
-        marginLeft: 5,
+        marginLeft: 6,
         fontSize: 14,
-        color: '#333',
+        fontWeight: '600',
+        color: '#374151',
+    },
+    voteTextActive: {
+        color: '#FFFFFF',
     },
 });

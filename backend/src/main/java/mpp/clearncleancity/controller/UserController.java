@@ -36,7 +36,7 @@ public class UserController {
     ) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found."));
 
         try {
             // Define the upload directory in resources

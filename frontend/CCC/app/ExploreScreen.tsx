@@ -50,11 +50,11 @@ export default function ExploreScreen() {
             try {
                 const token = await AsyncStorage.getItem('token');
                 if (!token) {
-                    console.warn('[fetchIssues] No token found');
+                    console.warn('[fetchIssues] No token found.');
                     return;
                 }
 
-                const response = await fetch(`${IPaddress}/api/issues`, {
+                const response = await fetch(`${IPaddress}/api/issues/sorted-by-upvotes`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {
@@ -68,7 +68,7 @@ export default function ExploreScreen() {
                             });
                             if (voteRes.ok) {
                                 const userVote = await voteRes.json();
-                                return { ...issue, userVote }; // Adaugă `userVote` la issue
+                                return { ...issue, userVote };
                             }
                             return { ...issue, userVote: null };
                         })
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 6,
         elevation: 3,
-        width: '48%', // Aproximativ jumătate din lățime
+        width: '48%',
         alignItems: 'center',
     },
     cardText: {
