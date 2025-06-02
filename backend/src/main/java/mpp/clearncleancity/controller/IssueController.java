@@ -61,11 +61,15 @@ public class IssueController {
                 Files.createDirectories(path.getParent());
                 Files.write(path, image.getBytes());
                 imageUrl = "/uploads/" + filename;
+                log.info("Image saved at: {}", imageUrl);
             }
 
             String username = authentication.getName();
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found."));
+                    .orElseThrow(() -> {
+                        log.error("User not found: {}", username);
+                        return new RuntimeException("User not found.");
+                    });
 
             Issue issue = new Issue();
             issue.setTitle(title);
@@ -114,8 +118,10 @@ public class IssueController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateIssueStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        log.info("Updating status for issue ID: {}", id);
         Optional<Issue> optionalIssue = issueRepository.findById(id);
         if (optionalIssue.isEmpty()) {
+            log.error("Issue not found with ID: {}", id);
             return ResponseEntity.notFound().build();
         }
 
@@ -123,6 +129,7 @@ public class IssueController {
 
         String statusStr = body.get("status");
         if (statusStr == null) {
+            log.warn("Missing status field for issue ID: {}", id);
             return ResponseEntity.badRequest().body("Missing status field.");
         }
 
@@ -130,13 +137,14 @@ public class IssueController {
             IssueStatus newStatus = IssueStatus.valueOf(statusStr.toUpperCase());
             issue.setStatus(newStatus);
             issueRepository.save(issue);
+            log.info("Issue status updated to {} for ID: {}", newStatus, id);
             sendLiveUpdate(issue, "update");
             return ResponseEntity.ok(issue);
         } catch (IllegalArgumentException e) {
+            log.error("Invalid status value: {}", statusStr);
             return ResponseEntity.badRequest().body("Invalid status value: " + statusStr);
         }
     }
-
 
     @DeleteMapping("/{id}")
     public void deleteIssue(@PathVariable Long id) {
@@ -161,11 +169,15 @@ public class IssueController {
     @GetMapping("/police")
     public List<Issue> getPoliceIssues(Authentication authentication) {
         String username = authentication.getName();
+        log.info("Fetching police issues for user: {}", username);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new RuntimeException("User not found");
+                });
 
         if (user.getOrganType() != OrganType.POLITIE){
-            log.info("Unauthorized access to police data.");
+            log.warn("Unauthorized access to police data by user: {}", username);
             throw new AuthorizationDeniedException("You are not authorized to access this information");
         }
 
@@ -176,11 +188,15 @@ public class IssueController {
     @GetMapping("/sanitation")
     public List<Issue> getSanitationIssues(Authentication authentication) {
         String username = authentication.getName();
+        log.info("Fetching sanitation issues for user: {}", username);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new RuntimeException("User not found");
+                });
 
         if (user.getOrganType() != OrganType.SALUBRITATE){
-            log.info("Unauthorized access to sanitation data.");
+            log.warn("Unauthorized access to sanitation data by user: {}", username);
             throw new AuthorizationDeniedException("You are not authorized to access this information");
         }
 
@@ -191,11 +207,15 @@ public class IssueController {
     @GetMapping("/firefighter")
     public List<Issue> getFirefighterIssues(Authentication authentication) {
         String username = authentication.getName();
+        log.info("Fetching firefighter issues for user: {}", username);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new RuntimeException("User not found");
+                });
 
         if (user.getOrganType() != OrganType.POMPIERI){
-            log.info("Unauthorized access to firefight data.");
+            log.warn("Unauthorized access to firefighter data by user: {}", username);
             throw new AuthorizationDeniedException("You are not authorized to access this information");
         }
 
@@ -206,10 +226,15 @@ public class IssueController {
     @GetMapping("/my-reports")
     public ResponseEntity<List<Issue>> getMyReports(Authentication authentication) {
         String username = authentication.getName();
+        log.info("Fetching reports for user: {}", username);
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new RuntimeException("User not found");
+                });
 
         List<Issue> myIssues = issueRepository.findByUserId(user.getId());
+        log.info("Found {} reports for user: {}", myIssues.size(), username);
         return ResponseEntity.ok(myIssues);
     }
 
@@ -224,7 +249,14 @@ public class IssueController {
 
     @GetMapping("/sorted-by-upvotes")
     public List<Issue> getIssuesSortedByUpvotes() {
+        log.info("Fetching issues sorted by upvotes");
         return issueRepository.findAllSortedByUpvotes();
+    }
+
+    @GetMapping("/sorted-by-status")
+    public List<Issue> getIssuesSortedByStatus() {
+        log.info("Fetching issues sorted by status");
+        return issueRepository.findAllSortedByStatus();
     }
 
     private void sendLiveUpdate(Issue issue, String action) {

@@ -21,4 +21,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     @Query("SELECT i FROM Issue i LEFT JOIN i.votes v ON v.upvote = true GROUP BY i.id ORDER BY COUNT(v) DESC")
     List<Issue> findAllSortedByUpvotes();
+
+    @Query("SELECT i FROM Issue i ORDER BY i.status ASC")
+    List<Issue> findAllSortedByStatus();
 }

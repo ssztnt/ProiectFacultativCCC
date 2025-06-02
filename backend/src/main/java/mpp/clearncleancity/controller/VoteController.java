@@ -6,12 +6,13 @@ import mpp.clearncleancity.model.entitites.Vote;
 import mpp.clearncleancity.repository.IssueRepository;
 import mpp.clearncleancity.repository.UserRepository;
 import mpp.clearncleancity.repository.VoteRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,17 +31,21 @@ public class VoteController {
     @Autowired
     private WebSocketController webSocketController;
 
-    // 1. POST vote (upvote or downvote)
+    private static final Logger log = LoggerFactory.getLogger(VoteController.class);
+
     @PostMapping("/{issueId}")
     public ResponseEntity<?> vote(
             @PathVariable Long issueId,
             @RequestParam boolean upvote,
             Principal principal) {
 
+        log.info("User '{}' voting on issue {} with upvote={}", principal.getName(), issueId, upvote);
+
         Optional<User> userOpt = userRepository.findByUsername(principal.getName());
         Optional<Issue> issueOpt = issueRepository.findById(issueId);
 
         if (userOpt.isEmpty() || issueOpt.isEmpty()) {
+            log.warn("User or issue not found (user='{}', issueId={})", principal.getName(), issueId);
             return ResponseEntity.badRequest().body("User or issue not found.");
         }
 
@@ -51,77 +56,77 @@ public class VoteController {
 
         if (existingVoteOpt.isPresent()) {
             Vote existingVote = existingVoteOpt.get();
-
             if (existingVote.isUpvote() == upvote) {
-                // 1. Apasă pe votul deja dat -> sterge votul
                 voteRepository.delete(existingVote);
+                log.info("Vote removed by user '{}' for issue {}", user.getUsername(), issueId);
             } else {
-                // 2. Apasă pe votul opus -> actualizeaza votul
                 existingVote.setUpvote(upvote);
                 voteRepository.save(existingVote);
+                log.info("Vote updated by user '{}' for issue {} to upvote={}", user.getUsername(), issueId, upvote);
             }
         } else {
-            // 3. Nu a votat inca -> creeaza vot nou
             Vote newVote = new Vote(upvote, user, issue);
             voteRepository.save(newVote);
+            log.info("New vote created by user '{}' for issue {} with upvote={}", user.getUsername(), issueId, upvote);
         }
 
         return ResponseEntity.ok().build();
     }
 
-    // 2. GET votul curent al userului pentru un issue
     @GetMapping("/{issueId}/my-vote")
     public ResponseEntity<?> getMyVote(
             @PathVariable Long issueId,
             Principal principal) {
 
+        if (principal == null || principal.getName() == null) {
+            log.warn("Principal is null or unauthenticated");
+            return ResponseEntity.status(401).body("User not authenticated");
+        }
+
+        log.info("Getting vote for user '{}' on issue {}", principal.getName(), issueId);
+
         Optional<User> userOpt = userRepository.findByUsername(principal.getName());
         Optional<Issue> issueOpt = issueRepository.findById(issueId);
 
         if (userOpt.isEmpty() || issueOpt.isEmpty()) {
+            log.warn("User or issue not found (user='{}', issueId={})", principal.getName(), issueId);
             return ResponseEntity.badRequest().body("User or issue not found");
         }
 
         Optional<Vote> voteOpt = voteRepository.findByUserAndIssue(userOpt.get(), issueOpt.get());
 
         if (voteOpt.isEmpty()) {
-            return ResponseEntity.ok().body(null);
+            log.info("No vote found for user '{}' on issue {}", principal.getName(), issueId);
+            return ResponseEntity.ok().body("No vote found");
         }
 
+        log.info("Vote retrieved for user '{}' on issue {}: upvote={}", principal.getName(), issueId, voteOpt.get().isUpvote());
         return ResponseEntity.ok(voteOpt.get().isUpvote());
     }
 
-    // 3. GET scorul total al unui issue
-    @GetMapping("/{issueId}/score")
-    public ResponseEntity<?> getIssueScore(@PathVariable Long issueId) {
-        Optional<Issue> issueOpt = issueRepository.findById(issueId);
-        if (issueOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Issue not found");
-        }
-
-        Integer score = voteRepository.getScoreForIssue(issueOpt.get());
-        return ResponseEntity.ok(score != null ? score : 0);
-    }
-
-    // 4. GET numărul total de upvotes pentru un issue
     @GetMapping("/{issueId}/upvotes")
     public ResponseEntity<?> getUpvotes(@PathVariable Long issueId) {
+        log.info("Retrieving upvotes for issue {}", issueId);
         Optional<Issue> issueOpt = issueRepository.findById(issueId);
         if (issueOpt.isEmpty()) {
+            log.warn("Issue not found: {}", issueId);
             return ResponseEntity.badRequest().body("Issue not found");
         }
         long upvotes = voteRepository.countUpvotesByIssue(issueOpt.get());
+        log.info("Upvotes for issue {}: {}", issueId, upvotes);
         return ResponseEntity.ok(upvotes);
     }
 
-    // 5. GET numărul total de downvotes pentru un issue
     @GetMapping("/{issueId}/downvotes")
     public ResponseEntity<?> getDownvotes(@PathVariable Long issueId) {
+        log.info("Retrieving downvotes for issue {}", issueId);
         Optional<Issue> issueOpt = issueRepository.findById(issueId);
         if (issueOpt.isEmpty()) {
+            log.warn("Issue not found: {}", issueId);
             return ResponseEntity.badRequest().body("Issue not found");
         }
         long downvotes = voteRepository.countDownvotesByIssue(issueOpt.get());
+        log.info("Downvotes for issue {}: {}", issueId, downvotes);
         return ResponseEntity.ok(downvotes);
     }
 }
