@@ -263,4 +263,10 @@ public class IssueController {
         log.info("Sending live update via WebSocket for action: {}", action);
         webSocketController.sendIssueUpdate(issue, action);
     }
+
+    @GetMapping("/issue-count/{id}")
+    public Integer getIssueCountForUser(@PathVariable Long id) {
+        log.info("Fetching issue count for user with ID: {}", id);
+        return issueRepository.findIssueCount(id);
+    }
 }

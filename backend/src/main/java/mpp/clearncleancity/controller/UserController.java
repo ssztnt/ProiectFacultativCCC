@@ -69,4 +69,17 @@ public class UserController {
     }
 
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        log.info("Trying to delete user with id: {}", id);
+        return userRepository.findById(id)
+                .map(user -> {
+                    userRepository.delete(user);
+                    log.info("Deleted user with id: {}", id);
+                    return ResponseEntity.ok().body("User deleted successfully");
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
+    }
+
 }

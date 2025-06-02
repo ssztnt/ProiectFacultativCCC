@@ -59,7 +59,8 @@ public class WebSecurityConfig {
                                         "/api/issues/{id}",
                                         "/uploads/**",
                                         "/ws/**",
-                                        "/topic/**"
+                                        "/topic/**",
+                                        "/api/issues/issue-count/**"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/api/issues/create-with-image",
