@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
     Alert, Image, KeyboardAvoidingView, Platform, FlatList
@@ -19,8 +19,8 @@ export default function ReportIssueScreen() {
     const [category, setCategory] = useState(null);
     const [locationText, setLocationText] = useState('');
     const [image, setImage] = useState<{ uri: string } | null>(null);
-    const [latitude, setLatitude] = useState<number | null>(null);
-    const [longitude, setLongitude] = useState<number | null>(null);
+    const [, setLatitude] = useState<number | null>(null);
+    const [, setLongitude] = useState<number | null>(null);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState([
         { label: 'Garbage', value: 'GARBAGE' },

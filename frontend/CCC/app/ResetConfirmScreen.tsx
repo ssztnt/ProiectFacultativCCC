@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { IPaddress } from '../constants/NetworkConfig';
+import { IPaddress } from '@/constants/NetworkConfig';
 
 export default function ResetConfirmScreen() {
     const [password, setPassword] = useState('');

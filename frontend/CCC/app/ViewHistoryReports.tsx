@@ -19,7 +19,6 @@ import {router} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
 import AppLayout from '@/components/AppLayout';
 import { IssueItem } from '@/components/IssueItem';
-import Colors from "@/app/organ/constants/Colors";
 import { ResolvedIssueValue, OpenIssueValue } from "@/constants/Constants";
 
 interface Issue {
@@ -31,8 +30,6 @@ interface Issue {
     imageUrl?: string;
     createdAt: string;
 }
-
-const colors = Colors;
 const PAGE_SIZE = 3;
 
 export default function ViewHistoryReports() {

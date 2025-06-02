@@ -7,7 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {IPaddress} from "@/constants/NetworkConfig";
 import MapView, {Marker, Region} from "react-native-maps";
 import * as Location from "expo-location";
-import AppColor from "@/constants/AppColor";
 
 const { width } = Dimensions.get('window');
 
@@ -55,8 +54,8 @@ export default function PompieriDispatchScreen() {
         }).start();
     }, [selectedTeam]);
 
-    const [reportCount, setReportCount] = useState();
-    const [resolvedCount, setResolvedCount] = useState();
+    const [, setReportCount] = useState();
+    const [, setResolvedCount] = useState();
 
     const [issues, setIssues] = useState<Issue[]>([]);
 
@@ -104,7 +103,7 @@ export default function PompieriDispatchScreen() {
         />
     )), [issues]);
 
-    const [expanded, setExpanded] = useState(false);
+    const [expanded] = useState(false);
 
     const goToMyLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();

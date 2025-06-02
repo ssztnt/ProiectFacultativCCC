@@ -4,8 +4,7 @@ import AppColor from '../constants/AppColor';
 
 export default function SplashScreen() {
     const router = useRouter();
-    const screenHeight = Dimensions.get('window').height;
-
+    Dimensions.get('window').height;
     return (
         <View style={styles.container}>
             <View style={styles.content}>

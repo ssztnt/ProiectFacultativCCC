@@ -9,10 +9,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppColor from '../constants/AppColor';
-import { router } from "expo-router";
 import IssueCard from '../app/IssueCard';
-import { Ionicons } from "@expo/vector-icons";
-import { connectWebSocket, disconnectWebSocket } from '../services/WebSocket';
+import { connectWebSocket, disconnectWebSocket } from '@/services/WebSocket';
 import {IPaddress} from "@/constants/NetworkConfig";
 import AppLayout from "@/components/AppLayout";
 

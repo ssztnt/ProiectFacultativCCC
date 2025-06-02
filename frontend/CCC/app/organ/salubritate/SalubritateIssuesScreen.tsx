@@ -5,14 +5,12 @@ import { IPaddress } from "@/constants/NetworkConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from '../constants/Colors';
 import { styles } from '../constants/issuesScreenStyle';
-import { connectWebSocket, disconnectWebSocket } from '../../../services/WebSocket';
+import { connectWebSocket, disconnectWebSocket } from '@/services/WebSocket';
 import {IssueItem} from "@/components/IssueItem";
 
 const { width } = Dimensions.get('window');
 
 const colors = Colors;
-const sanitationColors = colors.sanitation;
-
 interface Issue {
     id: number;
     title: string;

@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AppColor from '../constants/AppColor';
 import AppLayout from '../components/AppLayout';
@@ -70,7 +69,7 @@ export default function HomeScreen() {
         />
     )), [issues]);
 
-    const [expanded, setExpanded] = useState(false);
+    const [expanded] = useState(false);
 
     const goToMyLocation = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();

@@ -1,17 +1,15 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Animated,
     Alert,
     Switch,
     ScrollView,
     Image,
     Modal
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import * as ImagePicker from "expo-image-picker";
@@ -25,12 +23,11 @@ type LegalModalType = 'terms' | 'privacy';
 
 export default function SalubritateSettingsScreen() {
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [darkModeEnabled, setDarkModeEnabled] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [isModalVisible, setModalVisible] = useState(false);
 
-    const [legalModalVisible, setLegalModalVisible] = useState(false);
-    const [legalModalType, setLegalModalType] = useState<LegalModalType | null>(null);
+    const [, setLegalModalVisible] = useState(false);
+    const [, setLegalModalType] = useState<LegalModalType | null>(null);
 
     const openTerms = () => {
         setLegalModalType('terms');
@@ -41,12 +38,6 @@ export default function SalubritateSettingsScreen() {
         setLegalModalType('privacy');
         setLegalModalVisible(true);
     };
-
-    const closeModal = () => {
-        setLegalModalVisible(false);
-        setLegalModalType(null);
-    };
-
     useEffect(() => {
         const loadUser = async () => {
             const stored = await AsyncStorage.getItem('userData');

@@ -12,7 +12,7 @@ import {
     Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { IPaddress } from '../constants/NetworkConfig';
+import { IPaddress } from '@/constants/NetworkConfig';
 import AppColor from '../constants/AppColor';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +24,7 @@ export default function LoginForm() {
     const [password, setPassword] = useState('');
     const router = useRouter();
     const shakeRef = useRef<any>(null);
-    const confettiRef = useRef(null);
+    useRef(null);
     const [showConfetti, setShowConfetti] = useState(false);
 
     const handleLogin = async () => {
