@@ -8,6 +8,7 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {IPaddress} from "@/constants/NetworkConfig";
 import { Animated } from 'react-native';
+import {Ionicons} from "@expo/vector-icons";
 
 interface Issue {
     id: number;

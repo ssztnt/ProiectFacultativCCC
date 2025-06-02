@@ -12,8 +12,6 @@ import {
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { IPaddress } from '../constants/NetworkConfig';
-import { Ionicons } from '@expo/vector-icons';
 import { IPaddress } from '@/constants/NetworkConfig';
 import {Ionicons} from "@expo/vector-icons";
 
