@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AdminIssuesScreen from './AdminIssuesScreen';
 import AdminManagerScreen from './AdminManagerScreen';
 import AdminSettingsScreen from './AdminSettingsScreen';
+import ProfileScreen from "@/app/ProfileScreen";
+import AppColor from "@/constants/AppColor";
 
 const Tab = createBottomTabNavigator();
 
@@ -19,7 +21,7 @@ export default function AdminScreen() {
                     else if (route.name === 'Settings') iconName = 'settings';
                     return <Ionicons name={iconName as any} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#0a3d62',
+                tabBarActiveTintColor: AppColor.primary,
                 tabBarInactiveTintColor: '#888',
                 headerShown: false,
             })}
