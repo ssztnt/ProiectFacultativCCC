@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppColor from '../constants/AppColor';
 import IssueCard from '../app/IssueCard';
 import { connectWebSocket, disconnectWebSocket } from '@/services/WebSocket';
-import {IPaddress} from "@/constants/NetworkConfig";
+import { IPaddress } from "@/constants/NetworkConfig";
 import AppLayout from "@/components/AppLayout";
 
 const SOURCES = [
@@ -24,6 +24,7 @@ const SOURCES = [
 export default function ExploreScreen() {
     const [history, setHistory] = useState<string[]>([]);
     const [issues, setIssues] = useState<any[]>([]);
+    const [sortBy, setSortBy] = useState<'upvotes' | 'status'>('upvotes'); // State to track sorting method
 
     useEffect(() => {
         const initializeData = async () => {
@@ -52,9 +53,16 @@ export default function ExploreScreen() {
                     return;
                 }
 
-                const response = await fetch(`${IPaddress}/api/issues/sorted-by-upvotes`, {
+                // Dynamically select the endpoint based on the current sorting method
+                const endpoint =
+                    sortBy === 'upvotes'
+                        ? `${IPaddress}/api/issues/sorted-by-upvotes`
+                        : `${IPaddress}/api/issues/sorted-by-status`;
+
+                const response = await fetch(endpoint, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+
                 if (response.ok) {
                     const data = await response.json();
 
@@ -82,6 +90,7 @@ export default function ExploreScreen() {
 
         initializeData();
 
+        // WebSocket connection to handle live updates
         connectWebSocket(
             (updatedIssue: any) => {
                 if (updatedIssue.action === 'delete') {
@@ -101,43 +110,13 @@ export default function ExploreScreen() {
         );
 
         return () => {
-            disconnectWebSocket();
+            disconnectWebSocket(); // Disconnect WebSocket on unmount
         };
-    }, []);
+    }, [sortBy]); // Re-fetch issues whenever the sorting method changes
 
-    const fetchVotes = async (issueId: number) => {
-        if (!issueId) {
-            console.warn('[fetchVotes] Issue ID is undefined.');
-            return;
-        }
-        try {
-            const upRes = await fetch(`${IPaddress}/api/votes/upvotes/${issueId}`);
-            const downRes = await fetch(`${IPaddress}/api/votes/downvotes/${issueId}`);
-            if (upRes.ok && downRes.ok) {
-                const upVotes = await upRes.json();
-                const downVotes = await downRes.json();
-                console.log(`[fetchVotes] Fetched votes for issue ${issueId}:`, { upVotes, downVotes });
-            } else {
-                console.warn('[fetchVotes] Failed to fetch votes. upRes.ok=', upRes.ok, 'downRes.ok=', downRes.ok);
-            }
-        } catch (error) {
-            console.error('[fetchVotes] Error fetching votes:', error);
-        }
-    };
-
-    const handleVoteUpdate = (
-        id: string,
-        newUpVotes: number,
-        newDownVotes: number,
-        userVote: 'UPVOTE' | 'DOWNVOTE' | null
-    ) => {
-        setIssues(prevIssues =>
-            prevIssues.map(issue =>
-                issue.id === id
-                    ? { ...issue, upVotes: newUpVotes, downVotes: newDownVotes, userVote }
-                    : issue
-            )
-        );
+    const toggleSort = () => {
+        // Toggle between "upvotes" and "status" sorting
+        setSortBy(prevSortBy => (prevSortBy === 'upvotes' ? 'status' : 'upvotes'));
     };
 
     const handleVisit = async (title: string, url: string) => {
@@ -158,10 +137,25 @@ export default function ExploreScreen() {
         }
     };
 
+    const handleVoteUpdate = (
+        id: string,
+        newUpVotes: number,
+        newDownVotes: number,
+        userVote: 'UPVOTE' | 'DOWNVOTE' | null
+    ) => {
+        setIssues(prevIssues =>
+            prevIssues.map(issue =>
+                issue.id === id
+                    ? { ...issue, upVotes: newUpVotes, downVotes: newDownVotes, userVote }
+                    : issue
+            )
+        );
+    };
+
     return (
         <AppLayout>
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.header}>📰 Pick your media source from</Text>
+                <Text style={styles.header}>📰 Pick your media source</Text>
                 <View style={styles.cardsContainer}>
                     {SOURCES.map((source, index) => (
                         <TouchableOpacity
@@ -183,8 +177,16 @@ export default function ExploreScreen() {
                     </View>
                 )}
 
-                <View style={styles.issuesBox}>
+                <View style={styles.issuesHeader}>
                     <Text style={styles.issuesTitle}>📋 Issues</Text>
+                    <TouchableOpacity style={styles.sortButton} onPress={toggleSort}>
+                        <Text style={styles.sortButtonText}>
+                            {sortBy === 'upvotes' ? 'By Status' : 'By Upvotes'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.issuesBox}>
                     {issues.map((issue) => (
                         <IssueCard
                             key={issue.id}
@@ -250,17 +252,30 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         color: '#444',
     },
-    backText: {
-        fontSize: 30,
-        color: AppColor.primary,
+    issuesHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    sortButton: {
+        backgroundColor: AppColor.primary,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        alignSelf: 'flex-end',
+        marginTop: 16, // Increased space above the button
+    },
+    sortButtonText: {
+        color: '#fff',
+        fontSize: 15,
         fontWeight: '600',
     },
-    backButton: {
-        position: 'absolute',
-        top: 50,
-        left: 20,
-        padding: 10,
-        zIndex: 10,
+    issuesTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#444',
+        marginTop: 18,
     },
     historyItem: {
         fontSize: 14,
@@ -268,13 +283,8 @@ const styles = StyleSheet.create({
         marginBottom: 3,
     },
     issuesBox: {
-        marginTop: 30,
+        marginTop: 10,
         width: '100%',
-    },
-    issuesTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginBottom: 8,
-        color: '#444',
+        marginBottom: 70,
     },
 });

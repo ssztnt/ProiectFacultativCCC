@@ -20,6 +20,7 @@ import {Ionicons} from "@expo/vector-icons";
 import AppLayout from '@/components/AppLayout';
 import { IssueItem } from '@/components/IssueItem';
 import { ResolvedIssueValue, OpenIssueValue } from "@/constants/Constants";
+import { connectWebSocket, disconnectWebSocket } from '@/services/WebSocket';
 
 interface Issue {
     id: number;
@@ -77,7 +78,36 @@ export default function ViewHistoryReports() {
 
     useEffect(() => {
         fetchReports();
-    }, []);
+
+        const handleWebSocketUpdate = (updatedIssue: any) => {
+            setIssues(prevIssues => {
+                if (updatedIssue.action === 'delete') {
+                    const filtered = prevIssues.filter(issue => issue.id !== updatedIssue.data.id);
+                    setVisibleIssues(filtered.slice(0, page * PAGE_SIZE)); // actualizează paginat
+                    return filtered;
+                } else {
+                    const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
+                    let newIssues;
+                    if (index !== -1) {
+                        newIssues = [...prevIssues];
+                        newIssues[index] = updatedIssue.data;
+                    } else {
+                        newIssues = [updatedIssue.data, ...prevIssues]; // sau push la final, depinde ce vrei
+                    }
+                    setVisibleIssues(newIssues.slice(0, page * PAGE_SIZE)); // actualizează paginat
+                    return newIssues;
+                }
+            });
+        };
+
+        connectWebSocket(handleWebSocketUpdate);
+
+        return () => {
+            disconnectWebSocket();
+        };
+    }, [page]); // Observă că am pus page în deps pentru că folosim page când actualizăm visibleIssues
+
+
 
     const [userPoints, setUserPoints] = useState(0);
     const computePoints = (issues: Issue[]) => {
@@ -86,10 +116,6 @@ export default function ViewHistoryReports() {
             0
         );
     };
-
-    useEffect(() => {
-        fetchReports();
-    }, []);
 
     useEffect(() => {
         if (issues.length > 0) {
@@ -231,7 +257,7 @@ const styles = StyleSheet.create({
     content: {
         paddingTop: 100,
         paddingHorizontal: 16,
-        paddingBottom: 120,
+        paddingBottom: 75,
     },
     header: {
         fontSize: 24,
