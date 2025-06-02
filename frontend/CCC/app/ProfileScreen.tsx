@@ -130,7 +130,6 @@ export default function ProfileScreen() {
                     <TouchableOpacity onPress={() => setModalVisible(true)}>
                         {user?.profilePictureUrl ? (
                             <>
-                                {console.log('Image source:', `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}`)}
                                 <Image
                                     source={{ uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }}
                                     style={styles.avatar}

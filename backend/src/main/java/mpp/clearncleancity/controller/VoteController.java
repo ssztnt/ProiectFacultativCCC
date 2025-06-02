@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,6 +56,8 @@ public class VoteController {
 
         Optional<Vote> existingVoteOpt = voteRepository.findByUserAndIssue(user, issue);
 
+        boolean voteChanged = false;
+
         if (existingVoteOpt.isPresent()) {
             Vote existingVote = existingVoteOpt.get();
             if (existingVote.isUpvote() == upvote) {
@@ -63,11 +67,26 @@ public class VoteController {
                 existingVote.setUpvote(upvote);
                 voteRepository.save(existingVote);
                 log.info("Vote updated by user '{}' for issue {} to upvote={}", user.getUsername(), issueId, upvote);
+                voteChanged = true;
             }
         } else {
             Vote newVote = new Vote(upvote, user, issue);
             voteRepository.save(newVote);
             log.info("New vote created by user '{}' for issue {} with upvote={}", user.getUsername(), issueId, upvote);
+            voteChanged = true;
+        }
+
+        // Send WebSocket update if the vote was changed
+        if (voteChanged) {
+            long upvotes = voteRepository.countUpvotesByIssue(issue);
+            long downvotes = voteRepository.countDownvotesByIssue(issue);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("issueId", issueId);
+            payload.put("upvotes", upvotes);
+            payload.put("downvotes", downvotes);
+
+            webSocketController.sendVoteUpdate(payload, "voteUpdated");
         }
 
         return ResponseEntity.ok().build();

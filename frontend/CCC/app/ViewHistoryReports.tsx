@@ -150,38 +150,39 @@ export default function ViewHistoryReports() {
 
     return (
         <AppLayout>
-            <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.header}>Personal Reports History 📋</Text>
+            <FlatList
+                data={issues}
+                renderItem={renderIssueItem}
+                keyExtractor={item => item.id.toString()}
+                ListHeaderComponent={
+                    <View style={styles.content}>
+                        <Text style={styles.header}>Personal Reports History 📋</Text>
 
-                <View style={styles.statsCard}>
-                    <View style={{ flex: 7 }}>
-                        <Text style={styles.statsTitle}>Your reports</Text>
-                        <Text style={styles.statsText}>📊 {issues.length} reports sent</Text>
-                        <Text style={styles.statsText}>🎯 Follow your progress right here!</Text>
-                    </View>
+                        <View style={styles.statsCard}>
+                            <View style={{ flex: 7 }}>
+                                <Text style={styles.statsTitle}>Your reports</Text>
+                                <Text style={styles.statsText}>📊 {issues.length} reports sent</Text>
+                                <Text style={styles.statsText}>🎯 Follow your progress right here!</Text>
+                            </View>
 
-                    <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                        <Image
-                            source={
-                                user?.profilePictureUrl
-                                    ? { uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }
-                                    : undefined
-                            }
-                            style={{ width: 60, height: 60, borderRadius: 30, marginBottom: 4, backgroundColor: '#ccc' }}
-                        />
-                        <Text style={styles.statsText}>
-                            {user?.firstname ?? 'User'}
-                        </Text>
-                        <Text style={styles.statsText}>{userPoints} Points</Text>
+                            <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
+                                <Image
+                                    source={
+                                        user?.profilePictureUrl
+                                            ? { uri: `${IPaddress}/uploads/profile-pictures/${user.profilePictureUrl}` }
+                                            : undefined
+                                    }
+                                    style={{ width: 60, height: 60, borderRadius: 30, marginBottom: 4, backgroundColor: '#ccc' }}
+                                />
+                                <Text style={styles.statsText}>
+                                    {user?.firstname ?? 'User'}
+                                </Text>
+                                <Text style={styles.statsText}>{userPoints} Points</Text>
+                            </View>
+                        </View>
                     </View>
-                </View>
-
-                {loading ? (
-                    <View style={styles.loadingCard}>
-                        <ActivityIndicator size="large" color={AppColor.primary} />
-                        <Text style={styles.loadingText}>Reports loading... 🔄</Text>
-                    </View>
-                ) : issues.length === 0 ? (
+                }
+                ListEmptyComponent={
                     <View style={styles.emptyCard}>
                         <Text style={styles.emptyTitle}>No reports found 🤷‍♂️</Text>
                         <Text style={styles.emptyText}>No reports sent. Start right now to help the community!</Text>
@@ -189,59 +190,8 @@ export default function ViewHistoryReports() {
                             <Text style={styles.quickText}>🚨 Report a problem right now</Text>
                         </TouchableOpacity>
                     </View>
-                ) : (
-                    <FlatList
-                        data={issues}
-                        renderItem={renderIssueItem}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                )}
-            </ScrollView>
-
-
-            <Modal
-                visible={modalVisible}
-                transparent
-                animationType="slide"
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            <View style={styles.modalHeader}>
-                                <Text style={styles.modalTitle}>{selectedIssue?.title}</Text>
-                                <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                    <Ionicons name="close" size={24} color="#666" />
-                                </TouchableOpacity>
-                            </View>
-
-                            <View style={styles.modalStatusCard}>
-                                <Text style={styles.modalStatusText}>
-                                    {getStatusEmoji(selectedIssue?.status || '')} Status: {selectedIssue?.status}
-                                </Text>
-                            </View>
-
-                            {selectedIssue?.imageUrl && (
-                                <Image
-                                    source={{ uri: `${IPaddress}/uploads/issue-pictures/${selectedIssue.imageUrl}` }}
-                                    style={styles.modalImage}
-                                />
-                            )}
-
-                            <View style={styles.modalDescCard}>
-                                <Text style={styles.modalDescTitle}>Description:</Text>
-                                <Text style={styles.modalDescription}>{selectedIssue?.description}</Text>
-                            </View>
-
-                            <View style={styles.modalDateCard}>
-                                <Text style={styles.modalDate}>
-                                    📅 Created at: {new Date(selectedIssue?.createdAt || '').toLocaleDateString('ro-RO')}
-                                </Text>
-                            </View>
-                        </ScrollView>
-                    </View>
-                </View>
-            </Modal>
+                }
+            />
         </AppLayout>
     );
 }

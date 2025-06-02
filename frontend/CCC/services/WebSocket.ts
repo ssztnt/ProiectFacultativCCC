@@ -5,7 +5,8 @@ import { IPaddress } from '@/constants/NetworkConfig';
 let stompClient: Client | null = null;
 
 export const connectWebSocket = (
-    onIssueMessageReceived: (data: any) => void
+    onIssueMessageReceived: (data: any) => void,
+    onVoteMessageReceived?: (data: any) => void
 ) => {
     stompClient = new Client({
         webSocketFactory: () => new SockJS(`${IPaddress}/ws`),
@@ -20,6 +21,15 @@ export const connectWebSocket = (
                 onIssueMessageReceived(payload);
             });
 
+            // Subscribe to vote updates if a handler is provided
+            if (onVoteMessageReceived) {
+                stompClient?.subscribe('/topic/votes', (message: IMessage) => {
+                    console.log('Raw vote message:', message.body);
+                    const payload = JSON.parse(message.body);
+                    console.log('Parsed vote message:', payload);
+                    onVoteMessageReceived(payload);
+                });
+            }
         },
         onStompError: (frame) => {
             console.error('STOMP error:', frame.headers['message']);

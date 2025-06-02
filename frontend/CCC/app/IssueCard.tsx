@@ -102,8 +102,6 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
 
     const statusConfig = getStatusConfig(issue.status);
 
-    console.log(`[IssueCard] Constructed image URL: ${IPaddress}/uploads/issue-pictures/${issue.imageUrl}`);
-
     const voteApiCall = async (type: 'UPVOTE' | 'DOWNVOTE') => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
@@ -124,38 +122,45 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
     };
 
     const updateVoteState = (type: 'UPVOTE' | 'DOWNVOTE') => {
+        let newUpVotes = upVotes;
+        let newDownVotes = downVotes;
+        let newUserVote = userVote;
+
         // daca apasa upvote
         if (type === 'UPVOTE') {
             if (userVote === 'UPVOTE') {
-                setUpVotes(upVotes - 1);
-                setUserVote(null);
+                newUpVotes = upVotes - 1;
+                newUserVote = null;
             } else {
                 if (userVote === 'DOWNVOTE') {
-                    setDownVotes(downVotes - 1);
+                    newDownVotes = downVotes - 1;
                 }
-                setUpVotes(upVotes + 1);
-                setUserVote('UPVOTE');
+                newUpVotes = upVotes + 1;
+                newUserVote = 'UPVOTE';
             }
-        // daca apasa downvote
+            // daca apasa downvote
         } else if (type === 'DOWNVOTE') {
             if (userVote === 'DOWNVOTE') {
-                setDownVotes(downVotes - 1);
-                setUserVote(null);
+                newDownVotes = downVotes - 1;
+                newUserVote = null;
             } else {
                 if (userVote === 'UPVOTE') {
-                    setUpVotes(upVotes - 1);
+                    newUpVotes = upVotes - 1;
                 }
-                setDownVotes(downVotes + 1);
-                setUserVote('DOWNVOTE');
+                newDownVotes = downVotes + 1;
+                newUserVote = 'DOWNVOTE';
             }
         }
 
-        // Notify parent about the change
+        setUpVotes(newUpVotes);
+        setDownVotes(newDownVotes);
+        setUserVote(newUserVote);
+
         onVote?.(
             issue.id,
-            Math.max(upVotes, 0),
-            Math.max(downVotes, 0),
-            userVote === type ? null : type
+            Math.max(newUpVotes, 0),
+            Math.max(newDownVotes, 0),
+            newUserVote
         );
     };
 
@@ -164,8 +169,6 @@ export default function IssueCard({ issue, onVote, onPressImage }: IssueCardProp
         try {
             const result = await voteApiCall(type);
             if (!result) return;
-
-            console.log(`[handleVote] Response ${result.status}: ${result.body}`);
             if (result.success) {
                 updateVoteState(type);
             } else {

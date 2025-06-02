@@ -76,7 +76,6 @@ export default function ExploreScreen() {
                             const voteRes = await fetch(`${IPaddress}/api/votes/${issue.id}/my-vote`, {
                                 headers: { Authorization: `Bearer ${token}` },
                             });
-                            console.log(`Fetching vote for issue ${issue.id}: ${voteRes.status}`);
                             if (voteRes.ok) {
                                 const responseText = await voteRes.text();
                                 if (responseText === "No vote found") {
@@ -106,6 +105,7 @@ export default function ExploreScreen() {
 
         connectWebSocket(
             (updatedIssue: any) => {
+                console.log('[WebSocket] Issue update received:', updatedIssue);
                 if (updatedIssue.action === 'delete') {
                     setIssues(prevIssues => prevIssues.filter(issue => issue.id !== updatedIssue.data.id));
                 } else {
@@ -113,19 +113,66 @@ export default function ExploreScreen() {
                         const index = prevIssues.findIndex(issue => issue.id === updatedIssue.data.id);
                         if (index !== -1) {
                             const newIssues = [...prevIssues];
-                            newIssues[index] = updatedIssue.data;
+                            newIssues[index] = { ...newIssues[index], ...updatedIssue.data };
                             return newIssues;
                         }
                         return [...prevIssues, updatedIssue.data];
                     });
                 }
+            },
+            (updatedVote: any) => {
+                console.log('[WebSocket] Vote update primit:', updatedVote);
+
+                const { issueId, upvotes, downvotes } = updatedVote.data;
+
+                // Adaugă aceste log-uri pentru debugging:
+                console.log('Issue ID type:', typeof issueId, 'Value:', issueId);
+
+                setIssues(prevIssues => {
+                    // Log pentru debugging:
+                    console.log('Existing issue IDs:', prevIssues.map(i => ({id: i.id, type: typeof i.id})));
+
+                    // Găsește issue-ul curent pentru comparație
+                    const currentIssue = prevIssues.find(issue => issue.id === issueId);
+                    console.log('Current issue before update:', currentIssue ? {
+                        id: currentIssue.id,
+                        upVotes: currentIssue.upVotes,
+                        downVotes: currentIssue.downVotes
+                    } : 'Not found');
+
+                    const updatedIssues = prevIssues.map(issue => {
+                        if (issue.id === issueId) {
+                            console.log(`[WebSocket] Updating issue ${issueId}: upVotes ${issue.upVotes} -> ${upvotes}, downVotes ${issue.downVotes} -> ${downvotes}`);
+
+                            // Forțează actualizarea chiar dacă valorile par la fel
+                            const updatedIssue = {
+                                ...issue,
+                                upVotes: upvotes,
+                                downVotes: downvotes,
+                                lastUpdated: Date.now() // Adaugă timestamp pentru a forța re-render
+                            };
+
+                            console.log('Updated issue:', {
+                                id: updatedIssue.id,
+                                upVotes: updatedIssue.upVotes,
+                                downVotes: updatedIssue.downVotes
+                            });
+
+                            return updatedIssue;
+                        }
+                        return issue;
+                    });
+
+                    console.log('State will be updated with new issues array');
+                    return updatedIssues;
+                });
             }
         );
 
         return () => {
-            disconnectWebSocket(); // Disconnect WebSocket on unmount
+            disconnectWebSocket();
         };
-    }, [sortBy]); // Re-fetch issues whenever the sorting method changes
+    }, [sortBy]);// Re-fetch issues whenever the sorting method changes
 
     const toggleSort = () => {
         // Toggle between "upvotes" and "status" sorting
@@ -156,12 +203,20 @@ export default function ExploreScreen() {
         newDownVotes: number,
         userVote: 'UPVOTE' | 'DOWNVOTE' | null
     ) => {
+        console.log(`[Local] Vote update for issue ${id}: upVotes -> ${newUpVotes}, downVotes -> ${newDownVotes}, userVote -> ${userVote}`);
+
         setIssues(prevIssues =>
-            prevIssues.map(issue =>
-                issue.id === id
-                    ? { ...issue, upVotes: newUpVotes, downVotes: newDownVotes, userVote }
-                    : issue
-            )
+            prevIssues.map(issue => {
+                if (issue.id === id) {
+                    return {
+                        ...issue,
+                        upVotes: newUpVotes,
+                        downVotes: newDownVotes,
+                        userVote
+                    };
+                }
+                return issue;
+            })
         );
     };
 
